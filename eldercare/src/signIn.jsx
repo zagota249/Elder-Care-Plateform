@@ -1,25 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Card, TextField, Button, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Box, Typography, Card, TextField, Button, FormControl, InputLabel, Select, MenuItem, Alert, CircularProgress } from "@mui/material";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/auth";
 
 export default function SignIn() {
   const navigate = useNavigate();
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
+    setError("");
+
     if (!role || !email || !password) {
-      alert("Please fill all fields");
+      setError("Please fill all fields");
       return;
     }
 
-    switch(role) {
-      case "admin": navigate("/admin"); break;
-      case "caregiver": navigate("/volunteer"); break;
-      case "familyMember": navigate("/family"); break;
-      case "elder": navigate("/elder"); break;
-      default: alert("Invalid role");
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/signin`, { email, password, role });
+      
+      // Store token and user info
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // Navigate based on role
+      switch (role) {
+        case "admin": navigate("/admin"); break;
+        case "caregiver": navigate("/volunteer"); break;
+        case "familyMember": navigate("/family"); break;
+        case "elder": navigate("/home"); break;
+        default: navigate("/home");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,6 +50,8 @@ export default function SignIn() {
 
       <Card sx={{ p:4, width:400, borderRadius:3, boxShadow:3 }}>
         <Typography sx={{ fontSize:'1.5rem', fontWeight:600, mb:3, color:'#1976d2' }}>Sign In</Typography>
+
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         <FormControl fullWidth sx={{ mb:3 }}>
           <InputLabel>I am a...</InputLabel>
@@ -43,23 +66,23 @@ export default function SignIn() {
         <TextField fullWidth label="Email" placeholder="email@example.com" sx={{ mb:3 }} value={email} onChange={(e)=>setEmail(e.target.value)} />
         <TextField fullWidth type="password" label="Password" placeholder="Enter password" sx={{ mb:2 }} value={password} onChange={(e)=>setPassword(e.target.value)} />
 
-        <Button fullWidth variant="contained" color="primary" sx={{ py:1.5, mb:2 }} onClick={handleSignIn}>
-          Sign In
+        <Button 
+          fullWidth 
+          variant="contained" 
+          color="primary" 
+          sx={{ py:1.5, mb:2 }} 
+          onClick={handleSignIn}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Sign In"}
         </Button>
 
-        {/* 🔹 Forgot Password Link */}
-        <Typography 
-          sx={{ textAlign:'center', mb:1, cursor:'pointer', color:'#1976d2' }}
-          onClick={() => navigate('/ForgetPassword')}
-        >
+        <Typography sx={{ textAlign:'center', mb:1, cursor:'pointer', color:'#1976d2' }} onClick={()=>navigate("/forget-password")}>
           Forgot Password?
         </Typography>
 
         <Typography sx={{ textAlign:'center' }}>
-          Don't have an account?{" "}
-          <span style={{ color:'#1976d2', cursor:'pointer' }} onClick={()=>navigate("/signup")}>
-            Sign Up
-          </span>
+          Don't have an account? <span style={{ color:'#1976d2', cursor:'pointer' }} onClick={()=>navigate("/signup")}>Sign Up</span>
         </Typography>
       </Card>
     </Box>
