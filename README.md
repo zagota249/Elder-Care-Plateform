@@ -220,7 +220,7 @@ npm test
 
 | Name | Role | GitHub |
 |------|------|--------|
-| Your Name | Developer | [@yourusername](https://github.com/yourusername) |
+| Muhammad Zain bin Zafar | Developer | https://github.com/zagota249  |
 | Team Member 2 | Developer | [@username2](https://github.com/username2) |
 
 ## 📄 License
