@@ -221,7 +221,7 @@ npm test
 | Name | Role | GitHub |
 |------|------|--------|
 | Muhammad Zain bin Zafar | Developer | https://github.com/zagota249  |
-| Team Member 2 | Developer | [@username2](https://github.com/username2) |
+| Team Member 2 | Developer | https://github.com/devil-458 |
 
 ## 📄 License
 
