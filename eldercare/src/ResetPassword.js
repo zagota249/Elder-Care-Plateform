@@ -16,6 +16,24 @@ export default function ResetPassword() {
   const query = new URLSearchParams(useLocation().search);
   const token = query.get("token");
 
+  // Check if token is missing
+  if (!token) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", backgroundColor: "#e9f3ff", p: 3 }}>
+        <Typography sx={{ fontSize: "2rem", fontWeight: 700, mb: 3, color: "#192b67" }}>ElderCare Platform</Typography>
+        <Card sx={{ p: 4, width: 400, borderRadius: 3, boxShadow: 3 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>Invalid or missing reset token. Please request a new password reset link.</Alert>
+          <Button variant="contained" fullWidth onClick={() => navigate("/forgot-password")} sx={{ mb: 2 }}>
+            Request New Reset Link
+          </Button>
+          <Typography sx={{ textAlign: "center" }}>
+            <span style={{ color: "#1976d2", cursor: "pointer" }} onClick={() => navigate("/signin")}>Back to Sign In</span>
+          </Typography>
+        </Card>
+      </Box>
+    );
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
