@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Card, TextField, Button, FormControl, InputLabel, Select, MenuItem, Alert, CircularProgress } from "@mui/material";
+import { Box, Typography, Card, TextField, Button, Alert, CircularProgress } from "@mui/material";
 import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/auth";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,21 +15,22 @@ export default function SignIn() {
   const handleSignIn = async () => {
     setError("");
 
-    if (!role || !email || !password) {
+    if (!email || !password) {
       setError("Please fill all fields");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/signin`, { email, password, role });
+      const res = await axios.post(`${API_URL}/login`, { email, password });
       
       // Store token and user info
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // Navigate based on role
-      switch (role) {
+      // Navigate based on user's actual role from the server response
+      const userRole = res.data.user.role;
+      switch (userRole) {
         case "admin": navigate("/admin"); break;
         case "caregiver": navigate("/volunteer"); break;
         case "familyMember": navigate("/family"); break;
@@ -53,16 +53,6 @@ export default function SignIn() {
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <FormControl fullWidth sx={{ mb:3 }}>
-          <InputLabel>I am a...</InputLabel>
-          <Select value={role} onChange={(e)=>setRole(e.target.value)} label="I am a...">
-            <MenuItem value="caregiver">Volunteer / Caregiver</MenuItem>
-            <MenuItem value="familyMember">Family Member</MenuItem>
-            <MenuItem value="admin">Administrator</MenuItem>
-            <MenuItem value="elder">Elder</MenuItem>
-          </Select>
-        </FormControl>
-
         <TextField fullWidth label="Email" placeholder="email@example.com" sx={{ mb:3 }} value={email} onChange={(e)=>setEmail(e.target.value)} />
         <TextField fullWidth type="password" label="Password" placeholder="Enter password" sx={{ mb:2 }} value={password} onChange={(e)=>setPassword(e.target.value)} />
 
@@ -77,7 +67,7 @@ export default function SignIn() {
           {loading ? <CircularProgress size={24} color="inherit" /> : "Sign In"}
         </Button>
 
-        <Typography sx={{ textAlign:'center', mb:1, cursor:'pointer', color:'#1976d2' }} onClick={()=>navigate("/forget-password")}>
+        <Typography sx={{ textAlign:'center', mb:1, cursor:'pointer', color:'#1976d2' }} onClick={()=>navigate("/forgot-password")}>
           Forgot Password?
         </Typography>
 
