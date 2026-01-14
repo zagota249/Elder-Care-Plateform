@@ -36,6 +36,7 @@ import {
   Snackbar,
   Paper,
   Switch,
+  Menu,
 } from "@mui/material";
 import {
   Dashboard,
@@ -63,8 +64,27 @@ import {
   Star,
   Favorite,
   AccessTime,
+  TrendingUp,
+  TrendingDown,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart as RechartsBarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 // Card hover style
 const cardHoverSx = {
@@ -142,6 +162,73 @@ export default function AdminDashboard() {
     smsAlerts: false,
     autoBackup: true,
   });
+
+  // Notification Menu
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const [adminNotifications, setAdminNotifications] = useState([
+    { id: 1, title: "New User Registration", message: "Sarah Wilson just registered as a volunteer", time: "5 min ago", read: false },
+    { id: 2, title: "Emergency Alert", message: "SOS triggered by Margaret Johnson", time: "10 min ago", read: false },
+    { id: 3, title: "System Update", message: "New version 2.1 is available", time: "1 hour ago", read: true },
+    { id: 4, title: "Report Ready", message: "Monthly health summary is ready", time: "2 hours ago", read: true },
+  ]);
+
+  const handleNotificationClick = (event) => {
+    setNotificationAnchor(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchor(null);
+  };
+
+  const markNotificationRead = (id) => {
+    setAdminNotifications(adminNotifications.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
+  const markAllRead = () => {
+    setAdminNotifications(adminNotifications.map(n => ({ ...n, read: true })));
+    setSnackbar({ open: true, message: "All notifications marked as read", severity: "success" });
+  };
+
+  const unreadCount = adminNotifications.filter(n => !n.read).length;
+
+  // Chart Data
+  const userGrowthData = [
+    { month: "Jul", elders: 120, family: 340, volunteers: 65 },
+    { month: "Aug", elders: 128, family: 360, volunteers: 70 },
+    { month: "Sep", elders: 135, family: 380, volunteers: 75 },
+    { month: "Oct", elders: 142, family: 395, volunteers: 80 },
+    { month: "Nov", elders: 150, family: 410, volunteers: 85 },
+    { month: "Dec", elders: 156, family: 423, volunteers: 89 },
+  ];
+
+  const healthComplianceData = [
+    { week: "Week 1", compliance: 85 },
+    { week: "Week 2", compliance: 88 },
+    { week: "Week 3", compliance: 82 },
+    { week: "Week 4", compliance: 92 },
+  ];
+
+  const emergencyResponseData = [
+    { month: "Oct", avgTime: 3.2 },
+    { month: "Nov", avgTime: 2.8 },
+    { month: "Dec", avgTime: 2.4 },
+  ];
+
+  const userDistributionData = [
+    { name: "Elders", value: 156, color: "#1976d2" },
+    { name: "Family", value: 423, color: "#2e7d32" },
+    { name: "Volunteers", value: 89, color: "#ed6c02" },
+  ];
+
+  const activityData = [
+    { day: "Mon", logins: 245, actions: 890 },
+    { day: "Tue", logins: 230, actions: 850 },
+    { day: "Wed", logins: 260, actions: 920 },
+    { day: "Thu", logins: 280, actions: 980 },
+    { day: "Fri", logins: 250, actions: 900 },
+    { day: "Sat", logins: 180, actions: 650 },
+    { day: "Sun", logins: 160, actions: 580 },
+  ];
 
   // New User Form
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "elder", status: "active", phone: "" });
@@ -271,18 +358,26 @@ export default function AdminDashboard() {
   const renderDashboard = () => (
     <>
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {statsData.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={cardHoverSx}>
-              <CardContent>
+          <Grid item xs={12} sm={6} lg={3} key={index}>
+            <Card sx={{ ...cardHoverSx, height: "100%" }}>
+              <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <Box>
-                    <Typography color="text.secondary" variant="body2">{stat.label}</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 700, my: 1 }}>{stat.value}</Typography>
-                    <Chip label={stat.change} size="small" color={stat.change.startsWith("+") ? "success" : "error"} sx={{ height: 20 }} />
+                    <Typography color="text.secondary" variant="body2" sx={{ fontWeight: 500 }}>{stat.label}</Typography>
+                    <Typography variant="h3" sx={{ fontWeight: 700, my: 1.5 }}>{stat.value}</Typography>
+                    <Chip 
+                      icon={stat.change.startsWith("+") ? <TrendingUp fontSize="small" /> : <TrendingDown fontSize="small" />}
+                      label={stat.change} 
+                      size="small" 
+                      color={stat.change.startsWith("+") ? "success" : "error"} 
+                      sx={{ height: 24, fontWeight: 600 }} 
+                    />
                   </Box>
-                  <Avatar sx={{ bgcolor: stat.color, width: 56, height: 56 }}>{stat.icon}</Avatar>
+                  <Avatar sx={{ bgcolor: `${stat.color}15`, width: 64, height: 64 }}>
+                    <Box sx={{ color: stat.color }}>{stat.icon}</Box>
+                  </Avatar>
                 </Box>
               </CardContent>
             </Card>
@@ -291,40 +386,71 @@ export default function AdminDashboard() {
       </Grid>
 
       <Grid container spacing={3}>
-        {/* Recent Users */}
+        {/* Quick User Growth Chart */}
         <Grid item xs={12} lg={8}>
+          <Card sx={{ ...cardHoverSx, mb: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>User Growth Overview</Typography>
+                <Button size="small" onClick={() => setActiveTab("analytics")}>View Details</Button>
+              </Box>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={userGrowthData}>
+                  <defs>
+                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1976d2" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#1976d2" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis dataKey="month" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
+                  <Area type="monotone" dataKey="family" name="Family" stroke="#2e7d32" fillOpacity={0.3} fill="#2e7d32" />
+                  <Area type="monotone" dataKey="elders" name="Elders" stroke="#1976d2" fillOpacity={0.3} fill="#1976d2" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Recent Users Table */}
           <Card sx={cardHoverSx}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Users</Typography>
                 <Button startIcon={<PersonAdd />} variant="contained" size="small" onClick={() => setOpenAddDialog(true)}>
                   Add User
                 </Button>
               </Box>
               <TableContainer>
-                <Table size="small">
+                <Table size="medium">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Join Date</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {users.slice(0, 5).map((user) => (
-                      <TableRow key={user.id} hover>
+                      <TableRow key={user.id} hover sx={{ "&:hover": { backgroundColor: "#f8f9fa" } }}>
                         <TableCell>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Avatar sx={{ width: 32, height: 32 }}>{user.name.charAt(0)}</Avatar>
-                            {user.name}
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            <Avatar sx={{ width: 40, height: 40, bgcolor: "#1976d2" }}>{user.name.charAt(0)}</Avatar>
+                            <Box>
+                              <Typography sx={{ fontWeight: 500 }}>{user.name}</Typography>
+                              <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+                            </Box>
                           </Box>
                         </TableCell>
                         <TableCell><Chip label={user.role} size="small" color={getRoleColor(user.role)} /></TableCell>
                         <TableCell><Chip label={user.status} size="small" color={getStatusColor(user.status)} variant="outlined" /></TableCell>
+                        <TableCell>{user.joinDate}</TableCell>
                         <TableCell>
-                          <IconButton size="small" onClick={() => handleViewUser(user)}><Visibility fontSize="small" /></IconButton>
-                          <IconButton size="small" onClick={() => handleEditUser(user)}><Edit fontSize="small" /></IconButton>
+                          <IconButton size="small" onClick={() => handleViewUser(user)} sx={{ mr: 0.5 }}><Visibility fontSize="small" /></IconButton>
+                          <IconButton size="small" onClick={() => handleEditUser(user)} sx={{ mr: 0.5 }}><Edit fontSize="small" /></IconButton>
                           <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.id)}><Delete fontSize="small" /></IconButton>
                         </TableCell>
                       </TableRow>
@@ -337,42 +463,56 @@ export default function AdminDashboard() {
           </Card>
         </Grid>
 
-        {/* Emergency Alerts & System Health */}
+        {/* Right Column - Emergency Alerts & System Health */}
         <Grid item xs={12} lg={4}>
+          {/* Emergency Alerts */}
           <Card sx={{ ...cardHoverSx, mb: 3 }}>
-            <CardContent>
+            <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
                 <Warning color="error" /> Emergency Alerts
               </Typography>
-              <List dense>
-                {emergencyAlerts.map((alert) => (
-                  <ListItem key={alert.id} sx={{ px: 0 }} secondaryAction={
-                    alert.status === "active" && (
-                      <Button size="small" color="success" onClick={() => handleResolveAlert(alert.id)}>Resolve</Button>
-                    )
-                  }>
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: alert.status === "active" ? "#ffebee" : "#e8f5e9", width: 40, height: 40 }}>
-                        {alert.status === "active" ? <Warning color="error" fontSize="small" /> : <CheckCircle color="success" fontSize="small" />}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={alert.elder} secondary={`${alert.type} • ${alert.time}`} />
-                  </ListItem>
+              <List sx={{ p: 0 }}>
+                {emergencyAlerts.map((alert, index) => (
+                  <Box key={alert.id}>
+                    <ListItem sx={{ px: 0, py: 1.5 }} secondaryAction={
+                      alert.status === "active" && (
+                        <Button size="small" color="success" variant="outlined" onClick={() => handleResolveAlert(alert.id)}>Resolve</Button>
+                      )
+                    }>
+                      <ListItemAvatar>
+                        <Avatar sx={{ bgcolor: alert.status === "active" ? "#ffebee" : "#e8f5e9", width: 44, height: 44 }}>
+                          {alert.status === "active" ? <Warning color="error" fontSize="small" /> : <CheckCircle color="success" fontSize="small" />}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText 
+                        primary={<Typography sx={{ fontWeight: 500 }}>{alert.elder}</Typography>}
+                        secondary={`${alert.type} • ${alert.time}`} 
+                      />
+                    </ListItem>
+                    {index < emergencyAlerts.length - 1 && <Divider />}
+                  </Box>
                 ))}
               </List>
             </CardContent>
           </Card>
 
+          {/* System Health */}
           <Card sx={cardHoverSx}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>System Health</Typography>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>System Health</Typography>
               {systemHealth.map((service, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                    <Typography variant="body2">{service.service}</Typography>
+                <Box key={index} sx={{ mb: 2.5 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{service.service}</Typography>
                     <Chip label={service.status} size="small" color={getStatusColor(service.status)} />
                   </Box>
-                  <LinearProgress variant="determinate" value={parseFloat(service.uptime)} sx={{ height: 6, borderRadius: 3 }} color={getStatusColor(service.status)} />
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={parseFloat(service.uptime)} 
+                    sx={{ height: 8, borderRadius: 4 }} 
+                    color={getStatusColor(service.status)} 
+                  />
+                  <Typography variant="caption" color="text.secondary">{service.uptime}% uptime</Typography>
                 </Box>
               ))}
             </CardContent>
@@ -547,45 +687,202 @@ export default function AdminDashboard() {
   );
 
   const renderAnalytics = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>Analytics Dashboard</Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <BarChart sx={{ fontSize: 60, color: "#1976d2" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>User Growth</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#1976d2" }}>+24%</Typography>
-              <Typography color="text.secondary">This month</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <Favorite sx={{ fontSize: 60, color: "#e91e63" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Health Compliance</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#4caf50" }}>92%</Typography>
-              <Typography color="text.secondary">Average across elders</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <AccessTime sx={{ fontSize: 60, color: "#ff9800" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Avg Response Time</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#ff9800" }}>2.4m</Typography>
-              <Typography color="text.secondary">Emergency alerts</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <People sx={{ fontSize: 60, color: "#9c27b0" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Active Users</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#9c27b0" }}>668</Typography>
-              <Typography color="text.secondary">Currently online</Typography>
-            </Paper>
-          </Grid>
+    <Box>
+      {/* Key Metrics Row */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ ...cardHoverSx, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "white" }}>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography sx={{ opacity: 0.9, fontSize: "0.85rem" }}>User Growth</Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 700, my: 1 }}>+24%</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TrendingUp fontSize="small" />
+                    <Typography variant="body2">vs last month</Typography>
+                  </Box>
+                </Box>
+                <People sx={{ fontSize: 50, opacity: 0.3 }} />
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
-      </CardContent>
-    </Card>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ ...cardHoverSx, background: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)", color: "white" }}>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography sx={{ opacity: 0.9, fontSize: "0.85rem" }}>Health Compliance</Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 700, my: 1 }}>92%</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TrendingUp fontSize="small" />
+                    <Typography variant="body2">+4% this week</Typography>
+                  </Box>
+                </Box>
+                <Favorite sx={{ fontSize: 50, opacity: 0.3 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ ...cardHoverSx, background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", color: "white" }}>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography sx={{ opacity: 0.9, fontSize: "0.85rem" }}>Avg Response Time</Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 700, my: 1 }}>2.4m</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TrendingDown fontSize="small" />
+                    <Typography variant="body2">-15% improvement</Typography>
+                  </Box>
+                </Box>
+                <AccessTime sx={{ fontSize: 50, opacity: 0.3 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} lg={3}>
+          <Card sx={{ ...cardHoverSx, background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", color: "white" }}>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography sx={{ opacity: 0.9, fontSize: "0.85rem" }}>Active Users</Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 700, my: 1 }}>668</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TrendingUp fontSize="small" />
+                    <Typography variant="body2">Online now</Typography>
+                  </Box>
+                </Box>
+                <BarChart sx={{ fontSize: 50, opacity: 0.3 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Charts Row 1 */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* User Growth Chart */}
+        <Grid item xs={12} lg={8}>
+          <Card sx={cardHoverSx}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>User Growth Trends</Typography>
+              <ResponsiveContainer width="100%" height={350}>
+                <AreaChart data={userGrowthData}>
+                  <defs>
+                    <linearGradient id="colorElders" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1976d2" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#1976d2" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorFamily" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2e7d32" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#2e7d32" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorVolunteers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ed6c02" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#ed6c02" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis dataKey="month" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
+                  <Legend />
+                  <Area type="monotone" dataKey="family" name="Family Members" stroke="#2e7d32" fillOpacity={1} fill="url(#colorFamily)" />
+                  <Area type="monotone" dataKey="elders" name="Elders" stroke="#1976d2" fillOpacity={1} fill="url(#colorElders)" />
+                  <Area type="monotone" dataKey="volunteers" name="Volunteers" stroke="#ed6c02" fillOpacity={1} fill="url(#colorVolunteers)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* User Distribution Pie Chart */}
+        <Grid item xs={12} lg={4}>
+          <Card sx={cardHoverSx}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>User Distribution</Typography>
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={userDistributionData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {userDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <Box sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 2 }}>
+                {userDistributionData.map((item) => (
+                  <Box key={item.name} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: item.color }} />
+                    <Typography variant="body2">{item.name}</Typography>
+                  </Box>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Charts Row 2 */}
+      <Grid container spacing={3}>
+        {/* Weekly Activity */}
+        <Grid item xs={12} lg={6}>
+          <Card sx={cardHoverSx}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Weekly Activity</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsBarChart data={activityData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis dataKey="day" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
+                  <Legend />
+                  <Bar dataKey="logins" name="Logins" fill="#1976d2" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="actions" name="Actions" fill="#9c27b0" radius={[4, 4, 0, 0]} />
+                </RechartsBarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Health Compliance Trend */}
+        <Grid item xs={12} lg={6}>
+          <Card sx={cardHoverSx}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Health Compliance Trend</Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={healthComplianceData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                  <XAxis dataKey="week" stroke="#666" />
+                  <YAxis domain={[70, 100]} stroke="#666" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="compliance" 
+                    name="Compliance %" 
+                    stroke="#4caf50" 
+                    strokeWidth={3}
+                    dot={{ fill: "#4caf50", strokeWidth: 2, r: 6 }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 
   const renderSettings = () => (
@@ -633,62 +930,200 @@ export default function AdminDashboard() {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 260, backgroundColor: "#1a237e", color: "white", p: 2, display: "flex", flexDirection: "column" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-          <LocalHospital sx={{ fontSize: 32 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare Admin</Typography>
+    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f0f2f5" }}>
+      {/* Sidebar - PC optimized */}
+      <Box sx={{ 
+        width: 280, 
+        backgroundColor: "#1a237e", 
+        color: "white", 
+        p: 3, 
+        display: "flex", 
+        flexDirection: "column",
+        position: "fixed",
+        height: "100vh",
+        overflowY: "auto",
+        boxShadow: "4px 0 12px rgba(0,0,0,0.1)",
+      }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4, pb: 3, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <LocalHospital sx={{ fontSize: 36 }} />
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>ElderCare</Typography>
+            <Typography sx={{ fontSize: "0.75rem", opacity: 0.7 }}>Admin Dashboard</Typography>
+          </Box>
         </Box>
 
-        <List>
+        <Typography sx={{ fontSize: "0.7rem", opacity: 0.5, mb: 1, letterSpacing: 1, fontWeight: 600 }}>MAIN MENU</Typography>
+        <List sx={{ p: 0 }}>
           {sidebarItems.map((item) => (
             <ListItem
               key={item.key}
               onClick={() => setActiveTab(item.key)}
               sx={{
                 borderRadius: 2,
-                mb: 1,
+                mb: 0.5,
+                py: 1.5,
                 backgroundColor: activeTab === item.key ? "rgba(255,255,255,0.2)" : "transparent",
                 cursor: "pointer",
-                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                transition: "all 0.2s ease",
+                "&:hover": { backgroundColor: activeTab === item.key ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)" },
               }}
             >
-              <ListItemAvatar sx={{ minWidth: 40 }}>{item.icon}</ListItemAvatar>
-              <ListItemText primary={item.label} />
+              <ListItemAvatar sx={{ minWidth: 40 }}>
+                <Box sx={{ color: activeTab === item.key ? "white" : "rgba(255,255,255,0.7)" }}>{item.icon}</Box>
+              </ListItemAvatar>
+              <ListItemText 
+                primary={item.label} 
+                sx={{ "& .MuiTypography-root": { fontWeight: activeTab === item.key ? 600 : 400 } }}
+              />
+              {activeTab === item.key && (
+                <Box sx={{ width: 4, height: 24, backgroundColor: "#00bcd4", borderRadius: 2, ml: 1 }} />
+              )}
             </ListItem>
           ))}
         </List>
 
-        <Box sx={{ mt: "auto" }}>
-          <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 2 }} />
-          <Button fullWidth startIcon={<Logout />} onClick={handleLogout} sx={{ color: "white", justifyContent: "flex-start" }}>
+        <Box sx={{ mt: "auto", pt: 3, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 2, backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 2, mb: 2 }}>
+            <Avatar sx={{ bgcolor: "#00bcd4", width: 40, height: 40 }}>A</Avatar>
+            <Box>
+              <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>Administrator</Typography>
+              <Typography sx={{ fontSize: "0.75rem", opacity: 0.7 }}>admin@eldercare.com</Typography>
+            </Box>
+          </Box>
+          <Button 
+            fullWidth 
+            startIcon={<Logout />} 
+            onClick={handleLogout} 
+            sx={{ 
+              color: "white", 
+              justifyContent: "flex-start", 
+              py: 1.5,
+              borderRadius: 2,
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" }
+            }}
+          >
             Logout
           </Button>
         </Box>
       </Box>
 
-      {/* Main Content */}
-      <Box sx={{ flex: 1, p: 3 }}>
-        {/* Header */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      {/* Main Content - with left margin for fixed sidebar */}
+      <Box sx={{ flex: 1, ml: "280px", minHeight: "100vh" }}>
+        {/* Header - PC optimized */}
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          p: 3, 
+          backgroundColor: "white",
+          borderBottom: "1px solid #e0e0e0",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 700, color: "#1a237e" }}>
               {sidebarItems.find((i) => i.key === activeTab)?.label || "Dashboard"}
             </Typography>
-            <Typography variant="body2" color="text.secondary">Welcome back, Administrator</Typography>
+            <Typography variant="body2" color="text.secondary">Welcome back, Administrator • {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <IconButton onClick={() => setSnackbar({ open: true, message: "Notifications refreshed!", severity: "info" })}>
-              <Badge badgeContent={emergencyAlerts.filter((a) => a.status === "active").length} color="error">
-                <Notifications />
+            <TextField 
+              size="small" 
+              placeholder="Search..." 
+              sx={{ 
+                width: 300,
+                "& .MuiOutlinedInput-root": { 
+                  borderRadius: 3,
+                  backgroundColor: "#f5f5f5",
+                  "&:hover": { backgroundColor: "#eeeeee" },
+                }
+              }}
+              InputProps={{ startAdornment: <InputAdornment position="start"><Search sx={{ color: "#9e9e9e" }} /></InputAdornment> }}
+            />
+            <IconButton onClick={handleNotificationClick} sx={{ backgroundColor: "#f5f5f5", "&:hover": { backgroundColor: "#e0e0e0" } }}>
+              <Badge badgeContent={unreadCount} color="error">
+                <Notifications sx={{ color: "#666" }} />
               </Badge>
             </IconButton>
-            <Avatar sx={{ bgcolor: "#1a237e", cursor: "pointer" }} onClick={() => setActiveTab("settings")}>A</Avatar>
+            <Avatar sx={{ bgcolor: "#1a237e", cursor: "pointer", width: 44, height: 44 }} onClick={() => setActiveTab("settings")}>A</Avatar>
           </Box>
         </Box>
 
-        {renderContent()}
+        {/* Notification Menu */}
+        <Menu
+          anchorEl={notificationAnchor}
+          open={Boolean(notificationAnchor)}
+          onClose={handleNotificationClose}
+          PaperProps={{
+            sx: {
+              width: 380,
+              maxHeight: 480,
+              borderRadius: 3,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+            }
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e0e0e0" }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Notifications</Typography>
+            {unreadCount > 0 && (
+              <Button size="small" onClick={markAllRead}>Mark all read</Button>
+            )}
+          </Box>
+          
+          {adminNotifications.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: "center" }}>
+              <Notifications sx={{ fontSize: 48, color: "#ccc", mb: 1 }} />
+              <Typography color="text.secondary">No notifications</Typography>
+            </Box>
+          ) : (
+            <List sx={{ p: 0 }}>
+              {adminNotifications.map((notif, index) => (
+                <Box key={notif.id}>
+                  <ListItem 
+                    sx={{ 
+                      py: 2, 
+                      px: 2,
+                      backgroundColor: notif.read ? "transparent" : "#e3f2fd",
+                      cursor: "pointer",
+                      "&:hover": { backgroundColor: notif.read ? "#f5f5f5" : "#bbdefb" }
+                    }}
+                    onClick={() => markNotificationRead(notif.id)}
+                  >
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: notif.read ? "#f5f5f5" : "#1976d2", width: 44, height: 44 }}>
+                        <Notifications sx={{ color: notif.read ? "#999" : "white", fontSize: 20 }} />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: notif.read ? 400 : 600 }}>{notif.title}</Typography>}
+                      secondary={
+                        <Box>
+                          <Typography sx={{ fontSize: "0.85rem", color: "#666" }}>{notif.message}</Typography>
+                          <Typography sx={{ fontSize: "0.75rem", color: "#999", mt: 0.5 }}>{notif.time}</Typography>
+                        </Box>
+                      }
+                    />
+                    {!notif.read && <Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#1976d2" }} />}
+                  </ListItem>
+                  {index < adminNotifications.length - 1 && <Divider />}
+                </Box>
+              ))}
+            </List>
+          )}
+          
+          <Box sx={{ p: 1.5, borderTop: "1px solid #e0e0e0" }}>
+            <Button fullWidth variant="text" sx={{ textTransform: "none" }}>View All Notifications</Button>
+          </Box>
+        </Menu>
+
+        {/* Content Area */}
+        <Box sx={{ p: 3 }}>
+          {renderContent()}
+        </Box>
       </Box>
 
       {/* Add User Dialog */}
