@@ -11,45 +11,55 @@ export default function HomePage() {
             {/* Top Bar */}
             <header className="top-bar">
                 <div className="top-bar-content">
-                    <h1 className="logo">❤️ ElderCare Connect</h1>
-                    <button className="btn primary" onClick={() => navigate('/signin')}>Login</button>
+                    <div className="logo">
+                        <span className="logo-icon">❤️</span>
+                        <span className="logo-text">ElderCare Connect</span>
+                    </div>
+                    <button className="btn-signin" onClick={() => navigate('/signin')}>Sign In</button>
                 </div>
             </header>
 
             {/* Hero Section */}
             <section className="hero">
-                <div className="hero-left">
-                    <h2>Caring for Our Elders, Together</h2>
+                <div className="hero-overlay"></div>
+                <div className="hero-image-container">
+                    <img src="/elder.jpeg" alt="ElderCare" className="hero-bg-image" />
+                </div>
+                <div className="hero-content">
+                    <h2>Caring for Our Elders, <span className="highlight">Together</span></h2>
                     <p className="hero-text">
                         A comprehensive platform connecting elderly individuals with family members, volunteers, and healthcare support. Manage daily tasks, medications, emergencies, and stay connected.
                     </p>
                     <div className="hero-buttons">
-                        <button className="btn primary" onClick={() => navigate('/signup')}>Get Started</button>
+                        <button className="btn primary glow" onClick={() => navigate('/signup')}>Get Started</button>
                         <button className="btn secondary">Learn More</button>
                     </div>
-                </div>
-                <div className="hero-right">
-                    <img src="/elder.jpeg" alt="ElderCare" /> {/* Fixed image path */}
                 </div>
             </section>
 
             {/* Who Is This For */}
             <section className="audience">
-                <h2>Who Is This For?</h2>
+                <h2 className="section-title">Who Is This For?</h2>
                 <div className="audience-grid">
                     <div className="audience-card elders">
-                        <div className="audience-header">❤️ For Elders</div>
-                        <p>Daily task reminders</p>
-                        <p>Medicine alerts</p>
-                        <p>Large SOS button</p>
-                        <p>Simple chat</p>
+                        <div className="card-icon">👴</div>
+                        <div className="audience-header">For Elders</div>
+                        <ul className="feature-list">
+                            <li>✓ Daily task reminders</li>
+                            <li>✓ Medicine alerts</li>
+                            <li>✓ Large SOS button</li>
+                            <li>✓ Simple chat</li>
+                        </ul>
                     </div>
                     <div className="audience-card family">
-                        <div className="audience-header">👨‍👩‍👧 For Family</div>
-                        <p>Monitor health</p>
-                        <p>SOS notifications</p>
-                        <p>Direct communication</p>
-                        <p>Coordinate care</p>
+                        <div className="card-icon">👨‍👩‍👧</div>
+                        <div className="audience-header">For Family</div>
+                        <ul className="feature-list">
+                            <li>✓ Monitor health</li>
+                            <li>✓ SOS notifications</li>
+                            <li>✓ Direct communication</li>
+                            <li>✓ Coordinate care</li>
+                        </ul>
                     </div>
                 </div>
             </section>
@@ -58,53 +68,55 @@ export default function HomePage() {
             <section className="cards-section">
                 <div className="card volunteers">
                     <div className="card-header volunteers-header">
-                        👤 For Volunteers
+                        <span className="header-icon">🤝</span>
+                        For Volunteers
                     </div>
                     <div className="card-body">
-                        <p>💬 Communicate with elders & families</p>
-                        <p>❤️ Track your volunteer impact</p>
-                        <p>👤 Build meaningful connections</p>
-                        <p>📞 Assist in emergencies</p>
+                        <p><span className="bullet">💬</span> Communicate with elders & families</p>
+                        <p><span className="bullet">❤️</span> Track your volunteer impact</p>
+                        <p><span className="bullet">👤</span> Build meaningful connections</p>
+                        <p><span className="bullet">📞</span> Assist in emergencies</p>
                     </div>
                 </div>
 
                 <div className="card admins">
                     <div className="card-header admins-header">
-                        👤 For Administrators
+                        <span className="header-icon">⚙️</span>
+                        For Administrators
                     </div>
                     <div className="card-body">
-                        <p>❤️ Analytics & reporting dashboard</p>
-                        <p>👤 User management & verification</p>
-                        <p>📞 Monitor emergency responses</p>
-                        <p>💬 Ensure security & compliance</p>
+                        <p><span className="bullet">📊</span> Analytics & reporting dashboard</p>
+                        <p><span className="bullet">👤</span> User management & verification</p>
+                        <p><span className="bullet">🚨</span> Monitor emergency responses</p>
+                        <p><span className="bullet">🔒</span> Ensure security & compliance</p>
                     </div>
                 </div>
             </section>
 
             {/* Platform Features */}
             <section className="features">
-                <h2>Platform Features</h2>
+                <h2 className="section-title">Platform Features</h2>
                 <p className="features-text">
                     Everything you need to provide comprehensive care and support for elderly loved ones
                 </p>
                 <div className="feature-grid">
                     <div className="feature-card">
-                        📞
+                        <div className="feature-icon">🚨</div>
                         <h3>SOS Emergency</h3>
                         <p>One-tap emergency alerts to family and services</p>
                     </div>
                     <div className="feature-card">
-                        💊
+                        <div className="feature-icon">💊</div>
                         <h3>Medicine Tracking</h3>
                         <p>Automated reminders & management</p>
                     </div>
                     <div className="feature-card">
-                        💬
+                        <div className="feature-icon">💬</div>
                         <h3>Real-Time Chat</h3>
                         <p>Stay connected instantly</p>
                     </div>
                     <div className="feature-card">
-                        ❤️
+                        <div className="feature-icon">❤️</div>
                         <h3>Health Monitoring</h3>
                         <p>Track vital signs and activities</p>
                     </div>
@@ -113,7 +125,7 @@ export default function HomePage() {
 
             {/* Contact Form */}
             <section className="contact-form">
-                <h2>Contact Us</h2>
+                <h2 className="section-title">Contact Us</h2>
                 <form>
                     <input type="text" placeholder="Your Name" required />
                     <input type="email" placeholder="Your Email" required />
@@ -125,9 +137,11 @@ export default function HomePage() {
             {/* Footer */}
             <footer className="footer">
                 <div className="footer-content">
-                    <p>© 2025 ElderCare Connect. All rights reserved.</p>
+                    <p>© 2026 ElderCare Connect. All rights reserved.</p>
                     <div className="footer-links">
-                        <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+                        <a href="#">Privacy Policy</a>
+                        <span className="divider">|</span>
+                        <a href="#">Terms of Service</a>
                     </div>
                 </div>
             </footer>

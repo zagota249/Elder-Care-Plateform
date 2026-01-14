@@ -1,7 +1,7 @@
 import React from 'react';  
 import "./elder.css";
 
-const Sidebar = ({active,setactive}) => {  
+const Sidebar = ({active, setActive}) => {  
     const items=[
 
         {

@@ -7,60 +7,11 @@ body {
   color: #222;
 }
 
-/* App shell: sidebar + main */
-.app-shell {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background: #ffffff;
-  border-right: 1px solid #eee;
-  padding: 20px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-
-
+/* Main content - full width always */
 .main-content {
-  margin-left: 0 !important;
-  width: 100% !important;
+  width: 100%;
   padding: 28px;
 }
-
-/* When sidebar SHOULD be visible (pages like /home) */
-.main-content.with-sidebar {
-  margin-left: 260px !important;
-  width: calc(100% - 260px) !important;
-}
-
-/* Logo / App title */
-.logo { width: 58px; border-radius: 10px; }
-.app-title { margin: 8px 0 18px; font-size: 20px; }
-
-/* Nav */
-.nav { display: flex; flex-direction: column; gap: 8px; }
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-.nav-item:hover { background: #f2f6ff; }
-.nav-item.active { background: #e8f0ff; }
-
-.nav-icon { font-size: 18px; }
-.nav-label { font-size: 15px; }
 
 /* Top bar */
 .top-bar {
