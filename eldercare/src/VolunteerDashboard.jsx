@@ -7,204 +7,110 @@ import {
   Grid,
   Avatar,
   Button,
-  Chip,
   List,
   ListItem,
-  ListItemAvatar,
+  ListItemButton,
+  ListItemIcon,
   ListItemText,
-  IconButton,
-  Badge,
   Divider,
-  Switch,
-  TextField,
+  Chip,
+  Rating,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
   Snackbar,
   Alert,
-  LinearProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
+  IconButton,
 } from "@mui/material";
 import {
-  Dashboard,
-  ElderlyWoman,
-  Assignment,
-  CalendarMonth,
+  Dashboard as DashboardIcon,
+  HelpOutline,
   Message,
-  EmojiEvents,
-  Notifications,
-  Phone,
-  Videocam,
+  Person,
+  Settings,
   Logout,
-  VolunteerActivism,
+  Phone,
   CheckCircle,
+  Star,
   AccessTime,
-  LocalHospital,
-  Add,
+  People,
+  Favorite,
   Close,
+  Send,
   Edit,
   Save,
-  Star,
-  LocationOn,
-  MedicalServices,
-  Favorite,
+  Cancel,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-// Card hover style
-const cardHoverSx = {
-  borderRadius: 3,
-  boxShadow: 2,
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "translateY(-5px)",
-    boxShadow: 6,
-  },
-};
-
 export default function VolunteerDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-  const [openTaskDialog, setOpenTaskDialog] = useState(false);
-  const [openElderDialog, setOpenElderDialog] = useState(false);
-  const [openMessageDialog, setOpenMessageDialog] = useState(false);
-  const [selectedElder, setSelectedElder] = useState(null);
-  const [messageText, setMessageText] = useState("");
 
-  // Volunteer Info
-  const volunteerInfo = {
-    name: "Sarah Wilson",
-    email: "sarah.wilson@email.com",
-    phone: "555-0123",
-    hoursThisMonth: 45,
-    rating: 4.9,
-    totalElders: 5,
-    completedTasks: 128,
-    badges: ["Top Volunteer", "Quick Responder", "5-Star Rating"],
-  };
+  // Profile State
+  const [profileData, setProfileData] = useState({
+    name: "James Wilson",
+    email: "james@example.com",
+    phone: "+1 (555) 123-4567",
+    skills: "First Aid, Driving, Companionship",
+    availability: "Weekdays 9AM-5PM",
+  });
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [tempProfile, setTempProfile] = useState({ ...profileData });
 
-  // Stats
-  const stats = [
-    { label: "Assigned Elders", value: 5, icon: <ElderlyWoman />, color: "#1976d2" },
-    { label: "Pending Tasks", value: 8, icon: <Assignment />, color: "#ed6c02" },
-    { label: "Hours This Month", value: 45, icon: <AccessTime />, color: "#2e7d32" },
-    { label: "Completed Tasks", value: 128, icon: <CheckCircle />, color: "#9c27b0" },
-  ];
+  // Dialog States
+  const [callDialog, setCallDialog] = useState({ open: false, elder: null });
+  const [messageDialog, setMessageDialog] = useState({ open: false, elder: null, message: "" });
+  const [settingsDialog, setSettingsDialog] = useState(false);
+  const [composeDialog, setComposeDialog] = useState(false);
+  const [newMessage, setNewMessage] = useState({ to: "", message: "" });
+  const [replyDialog, setReplyDialog] = useState({ open: false, message: null, reply: "" });
 
-  // Elders assigned to this volunteer
-  const [elders, setElders] = useState([
+  // Elders State
+  const [nearbyElders, setNearbyElders] = useState([
     {
       id: 1,
-      name: "Margaret Johnson",
+      name: "Margaret Thompson",
+      address: "123 Oak Street, Springfield",
       age: 78,
-      address: "123 Oak Street, Apt 4B",
-      phone: "555-0101",
-      healthScore: 85,
-      lastVisit: "Dec 18, 2025",
-      nextVisit: "Dec 20, 2025",
-      conditions: ["Diabetes", "Hypertension"],
-      emergencyContact: "John Johnson (Son) - 555-0102",
+      phone: "+1 (555) 234-5678",
+      status: "Needs Help",
+      statusColor: "#f59e0b",
+      condition: "Diabetes Type 2, High Blood Pressure",
+      avatar: "M",
+      requestAccepted: false,
     },
     {
       id: 2,
-      name: "Robert Brown",
+      name: "Robert Jenkins",
+      address: "456 Maple Avenue, Springfield",
       age: 82,
-      address: "456 Maple Avenue",
-      phone: "555-0103",
-      healthScore: 72,
-      lastVisit: "Dec 17, 2025",
-      nextVisit: "Dec 21, 2025",
-      conditions: ["Arthritis", "Heart Disease"],
-      emergencyContact: "Emily Brown (Daughter) - 555-0104",
-    },
-    {
-      id: 3,
-      name: "Helen Martinez",
-      age: 75,
-      address: "789 Pine Road",
-      phone: "555-0105",
-      healthScore: 90,
-      lastVisit: "Dec 18, 2025",
-      nextVisit: "Dec 22, 2025",
-      conditions: ["Mild Dementia"],
-      emergencyContact: "Carlos Martinez (Son) - 555-0106",
-    },
-    {
-      id: 4,
-      name: "James Wilson",
-      age: 80,
-      address: "321 Elm Street",
-      phone: "555-0107",
-      healthScore: 78,
-      lastVisit: "Dec 16, 2025",
-      nextVisit: "Dec 19, 2025",
-      conditions: ["COPD"],
-      emergencyContact: "Lisa Wilson (Daughter) - 555-0108",
-    },
-    {
-      id: 5,
-      name: "Dorothy Lee",
-      age: 77,
-      address: "654 Cedar Lane",
-      phone: "555-0109",
-      healthScore: 88,
-      lastVisit: "Dec 18, 2025",
-      nextVisit: "Dec 23, 2025",
-      conditions: ["Osteoporosis"],
-      emergencyContact: "Michael Lee (Son) - 555-0110",
+      phone: "+1 (555) 345-6789",
+      status: "Available",
+      statusColor: "#4caf50",
+      condition: "Good - Regular checkups needed",
+      avatar: "R",
+      requestAccepted: false,
     },
   ]);
 
-  // Tasks
-  const [tasks, setTasks] = useState([
-    { id: 1, elder: "Margaret Johnson", title: "Medication Reminder", time: "10:00 AM", status: "pending", priority: "high" },
-    { id: 2, elder: "Robert Brown", title: "Health Check", time: "11:30 AM", status: "pending", priority: "medium" },
-    { id: 3, elder: "Helen Martinez", title: "Grocery Shopping", time: "2:00 PM", status: "pending", priority: "low" },
-    { id: 4, elder: "James Wilson", title: "Doctor Appointment", time: "3:30 PM", status: "completed", priority: "high" },
-    { id: 5, elder: "Dorothy Lee", title: "Social Visit", time: "5:00 PM", status: "pending", priority: "low" },
+  // Messages State
+  const [conversations, setConversations] = useState([
+    { id: 1, from: "Margaret Thompson", avatar: "M", color: "#1976d2", message: "Thank you so much for your help yesterday!", time: "3 hours ago", unread: true },
+    { id: 2, from: "Robert Jenkins", avatar: "R", color: "#4caf50", message: "Can you help me with grocery shopping?", time: "1 day ago", unread: true },
+    { id: 3, from: "Coordinator Sarah", avatar: "C", color: "#f59e0b", message: "Great work this week! Your rating is improving.", time: "2 days ago", unread: false },
   ]);
 
-  // Schedule
-  const [schedule, setSchedule] = useState([
-    { id: 1, day: "Monday", time: "9:00 AM - 12:00 PM", elder: "Margaret Johnson", activity: "Health Monitoring" },
-    { id: 2, day: "Monday", time: "2:00 PM - 4:00 PM", elder: "Robert Brown", activity: "Physical Therapy Assist" },
-    { id: 3, day: "Tuesday", time: "10:00 AM - 1:00 PM", elder: "Helen Martinez", activity: "Companionship Visit" },
-    { id: 4, day: "Wednesday", time: "9:00 AM - 11:00 AM", elder: "James Wilson", activity: "Medical Checkup Assist" },
-    { id: 5, day: "Thursday", time: "1:00 PM - 3:00 PM", elder: "Dorothy Lee", activity: "Grocery Shopping" },
-  ]);
-
-  // Messages
-  const [messages, setMessages] = useState([
-    { id: 1, from: "Margaret Johnson", text: "Thank you for your help today!", time: "10 mins ago", read: false },
-    { id: 2, from: "Admin", text: "New elder assigned to you.", time: "1 hour ago", read: true },
-    { id: 3, from: "Robert Brown", text: "Can we reschedule tomorrow?", time: "2 hours ago", read: true },
-  ]);
-
-  // Achievements
-  const achievements = [
-    { id: 1, title: "Top Volunteer", description: "Ranked #1 this month", icon: <EmojiEvents sx={{ color: "#ffc107" }} />, earned: true },
-    { id: 2, title: "Quick Responder", description: "Avg response time < 5 mins", icon: <AccessTime sx={{ color: "#2196f3" }} />, earned: true },
-    { id: 3, title: "5-Star Rating", description: "Maintained 5-star rating", icon: <Star sx={{ color: "#ff9800" }} />, earned: true },
-    { id: 4, title: "100 Tasks", description: "Completed 100+ tasks", icon: <CheckCircle sx={{ color: "#4caf50" }} />, earned: true },
-    { id: 5, title: "50 Hours", description: "Volunteered 50+ hours", icon: <Favorite sx={{ color: "#e91e63" }} />, earned: false },
-  ];
-
-  // New Task Form
-  const [newTask, setNewTask] = useState({ elder: "", title: "", time: "", priority: "medium" });
+  // Stats
+  const [stats, setStats] = useState({
+    peopleHelped: 24,
+    activeRequests: 2,
+    rating: 4.8,
+    avgResponse: "5 min",
+  });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -212,641 +118,502 @@ export default function VolunteerDashboard() {
     navigate("/signin");
   };
 
-  const handleCompleteTask = (taskId) => {
-    setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: "completed" } : t)));
-    setSnackbar({ open: true, message: "Task marked as completed!", severity: "success" });
+  const menuItems = [
+    { icon: <DashboardIcon />, label: "Dashboard" },
+    { icon: <HelpOutline />, label: "Help Requests" },
+    { icon: <Message />, label: "Messages" },
+    { icon: <Person />, label: "Profile" },
+  ];
+
+  // Handler Functions
+  const handleCall = (elder) => {
+    setCallDialog({ open: true, elder });
   };
 
-  const handleAddTask = () => {
-    if (!newTask.elder || !newTask.title || !newTask.time) {
-      setSnackbar({ open: true, message: "Please fill all required fields", severity: "error" });
-      return;
-    }
-    const task = {
-      id: tasks.length + 1,
-      ...newTask,
-      status: "pending",
-    };
-    setTasks([task, ...tasks]);
-    setNewTask({ elder: "", title: "", time: "", priority: "medium" });
-    setOpenTaskDialog(false);
-    setSnackbar({ open: true, message: "Task added successfully!", severity: "success" });
+  const handleMakeCall = () => {
+    setSnackbar({ open: true, message: `Calling ${callDialog.elder.name} at ${callDialog.elder.phone}...`, severity: "info" });
+    setCallDialog({ open: false, elder: null });
+    setTimeout(() => {
+      setSnackbar({ open: true, message: "Call connected successfully!", severity: "success" });
+    }, 2000);
   };
 
-  const handleCallElder = (elder) => {
-    setSnackbar({ open: true, message: `Calling ${elder.name}...`, severity: "info" });
-  };
-
-  const handleVideoCall = (elder) => {
-    setSnackbar({ open: true, message: `Starting video call with ${elder.name}...`, severity: "info" });
+  const handleMessage = (elder) => {
+    setMessageDialog({ open: true, elder, message: "" });
   };
 
   const handleSendMessage = () => {
-    if (!messageText.trim()) {
-      setSnackbar({ open: true, message: "Please enter a message", severity: "error" });
-      return;
-    }
-    setSnackbar({ open: true, message: `Message sent to ${selectedElder.name}!`, severity: "success" });
-    setMessageText("");
-    setOpenMessageDialog(false);
-  };
-
-  const handleViewElder = (elder) => {
-    setSelectedElder(elder);
-    setOpenElderDialog(true);
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high": return "error";
-      case "medium": return "warning";
-      case "low": return "success";
-      default: return "default";
+    if (messageDialog.message.trim()) {
+      setSnackbar({ open: true, message: `Message sent to ${messageDialog.elder.name}!`, severity: "success" });
+      setConversations(prev => [{
+        id: Date.now(),
+        from: messageDialog.elder.name,
+        avatar: messageDialog.elder.avatar,
+        color: "#1976d2",
+        message: `You: ${messageDialog.message}`,
+        time: "Just now",
+        unread: false,
+      }, ...prev]);
+      setMessageDialog({ open: false, elder: null, message: "" });
     }
   };
 
-  const sidebarItems = [
-    { icon: <Dashboard />, label: "Dashboard", key: "dashboard" },
-    { icon: <ElderlyWoman />, label: "My Elders", key: "elders" },
-    { icon: <Assignment />, label: "Tasks", key: "tasks" },
-    { icon: <CalendarMonth />, label: "Schedule", key: "schedule" },
-    { icon: <Message />, label: "Messages", key: "messages", badge: messages.filter((m) => !m.read).length },
-    { icon: <EmojiEvents />, label: "Achievements", key: "achievements" },
-  ];
+  const handleAcceptRequest = (elderId) => {
+    setNearbyElders(prev => prev.map(e => 
+      e.id === elderId ? { ...e, requestAccepted: true, status: "Helping", statusColor: "#4caf50" } : e
+    ));
+    setStats(prev => ({ ...prev, activeRequests: prev.activeRequests - 1, peopleHelped: prev.peopleHelped + 1 }));
+    setSnackbar({ open: true, message: "Help request accepted! The elder has been notified.", severity: "success" });
+  };
 
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard": return renderDashboard();
-      case "elders": return renderElders();
-      case "tasks": return renderTasks();
-      case "schedule": return renderSchedule();
-      case "messages": return renderMessages();
-      case "achievements": return renderAchievements();
-      default: return renderDashboard();
+  const handleOfferHelp = (elder) => {
+    setSnackbar({ open: true, message: `Help offer sent to ${elder.name}!`, severity: "success" });
+  };
+
+  const handleReply = (msg) => {
+    setReplyDialog({ open: true, message: msg, reply: "" });
+  };
+
+  const handleSendReply = () => {
+    if (replyDialog.reply.trim()) {
+      setSnackbar({ open: true, message: `Reply sent to ${replyDialog.message.from}!`, severity: "success" });
+      setConversations(prev => prev.map(c => 
+        c.id === replyDialog.message.id ? { ...c, unread: false } : c
+      ));
+      setReplyDialog({ open: false, message: null, reply: "" });
     }
   };
 
-  const renderDashboard = () => (
-    <>
-      {/* Stats */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={cardHoverSx}>
-              <CardContent>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Box>
-                    <Typography color="text.secondary" variant="body2">{stat.label}</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 700, mt: 1 }}>{stat.value}</Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: stat.color, width: 56, height: 56 }}>{stat.icon}</Avatar>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+  const handleStartConversation = () => {
+    setComposeDialog(true);
+  };
 
-      <Grid container spacing={3}>
-        {/* Today's Tasks */}
-        <Grid item xs={12} lg={8}>
-          <Card sx={cardHoverSx}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Today's Tasks</Typography>
-                <Button startIcon={<Add />} variant="contained" size="small" onClick={() => setOpenTaskDialog(true)}>
-                  Add Task
-                </Button>
-              </Box>
-              <List>
-                {tasks.filter((t) => t.status === "pending").slice(0, 5).map((task) => (
-                  <ListItem
-                    key={task.id}
-                    sx={{ bgcolor: "#f5f5f5", borderRadius: 2, mb: 1 }}
-                    secondaryAction={
-                      <Button size="small" variant="contained" color="success" onClick={() => handleCompleteTask(task.id)}>
-                        Complete
-                      </Button>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "#e3f2fd" }}>
-                        <Assignment color="primary" />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={task.title}
-                      secondary={`${task.elder} • ${task.time}`}
-                    />
-                    <Chip label={task.priority} size="small" color={getPriorityColor(task.priority)} sx={{ mr: 2 }} />
-                  </ListItem>
-                ))}
-              </List>
-              <Button fullWidth sx={{ mt: 2 }} onClick={() => setActiveTab("tasks")}>View All Tasks</Button>
-            </CardContent>
-          </Card>
-        </Grid>
+  const handleSendNewMessage = () => {
+    if (newMessage.to.trim() && newMessage.message.trim()) {
+      setConversations(prev => [{
+        id: Date.now(),
+        from: newMessage.to,
+        avatar: newMessage.to[0].toUpperCase(),
+        color: "#1976d2",
+        message: `You: ${newMessage.message}`,
+        time: "Just now",
+        unread: false,
+      }, ...prev]);
+      setSnackbar({ open: true, message: `Message sent to ${newMessage.to}!`, severity: "success" });
+      setComposeDialog(false);
+      setNewMessage({ to: "", message: "" });
+    }
+  };
 
-        {/* Quick Actions & Messages */}
-        <Grid item xs={12} lg={4}>
-          <Card sx={{ ...cardHoverSx, mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>My Assigned Elders</Typography>
-              <List dense>
-                {elders.slice(0, 3).map((elder) => (
-                  <ListItem key={elder.id} sx={{ px: 0 }} secondaryAction={
-                    <Box>
-                      <IconButton size="small" onClick={() => handleCallElder(elder)}><Phone fontSize="small" /></IconButton>
-                      <IconButton size="small" onClick={() => handleVideoCall(elder)}><Videocam fontSize="small" /></IconButton>
-                    </Box>
-                  }>
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "#e3f2fd" }}>{elder.name.charAt(0)}</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={elder.name}
-                      secondary={`Health: ${elder.healthScore}%`}
-                      onClick={() => handleViewElder(elder)}
-                      sx={{ cursor: "pointer" }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-              <Button fullWidth variant="outlined" sx={{ mt: 1 }} onClick={() => setActiveTab("elders")}>View All Elders</Button>
-            </CardContent>
-          </Card>
+  const handleEditProfile = () => {
+    setTempProfile({ ...profileData });
+    setEditingProfile(true);
+  };
 
-          <Card sx={cardHoverSx}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Recent Messages</Typography>
-              <List dense>
-                {messages.slice(0, 3).map((msg) => (
-                  <ListItem key={msg.id} sx={{ px: 0 }}>
-                    <ListItemAvatar>
-                      <Badge variant="dot" color="primary" invisible={msg.read}>
-                        <Avatar sx={{ bgcolor: "#e8f5e9" }}>{msg.from.charAt(0)}</Avatar>
-                      </Badge>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={msg.from}
-                      secondary={msg.text}
-                      primaryTypographyProps={{ fontWeight: msg.read ? 400 : 600 }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-              <Button fullWidth variant="outlined" sx={{ mt: 1 }} onClick={() => setActiveTab("messages")}>View All Messages</Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </>
-  );
+  const handleSaveProfile = () => {
+    setProfileData({ ...tempProfile });
+    setEditingProfile(false);
+    setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
+  };
 
-  const renderElders = () => (
-    <Grid container spacing={3}>
-      {elders.map((elder) => (
-        <Grid item xs={12} md={6} lg={4} key={elder.id}>
-          <Card sx={cardHoverSx}>
-            <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                <Avatar sx={{ bgcolor: "#1976d2", width: 64, height: 64 }}>{elder.name.charAt(0)}</Avatar>
-                <Box>
-                  <Typography variant="h6">{elder.name}</Typography>
-                  <Typography color="text.secondary">Age: {elder.age}</Typography>
-                </Box>
-              </Box>
+  const handleCancelEdit = () => {
+    setTempProfile({ ...profileData });
+    setEditingProfile(false);
+  };
 
-              <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                <LocationOn fontSize="small" color="action" />
-                <Typography variant="body2">{elder.address}</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                <Phone fontSize="small" color="action" />
-                <Typography variant="body2">{elder.phone}</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <MedicalServices fontSize="small" color="action" />
-                <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-                  {elder.conditions.map((c, i) => (
-                    <Chip key={i} label={c} size="small" variant="outlined" />
-                  ))}
-                </Box>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                  <Typography variant="body2">Health Score</Typography>
-                  <Typography variant="body2" fontWeight={600}>{elder.healthScore}%</Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={elder.healthScore}
-                  sx={{ height: 8, borderRadius: 4 }}
-                  color={elder.healthScore >= 80 ? "success" : elder.healthScore >= 60 ? "warning" : "error"}
-                />
-              </Box>
-
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Last Visit: {elder.lastVisit} | Next: {elder.nextVisit}
-              </Typography>
-
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button size="small" startIcon={<Phone />} variant="outlined" onClick={() => handleCallElder(elder)}>Call</Button>
-                <Button size="small" startIcon={<Videocam />} variant="outlined" onClick={() => handleVideoCall(elder)}>Video</Button>
-                <Button size="small" startIcon={<Message />} variant="contained" onClick={() => { setSelectedElder(elder); setOpenMessageDialog(true); }}>Message</Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  );
-
-  const renderTasks = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>My Tasks</Typography>
-          <Button startIcon={<Add />} variant="contained" onClick={() => setOpenTaskDialog(true)}>Add Task</Button>
-        </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Task</TableCell>
-                <TableCell>Elder</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Priority</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tasks.map((task) => (
-                <TableRow key={task.id} hover>
-                  <TableCell>{task.title}</TableCell>
-                  <TableCell>{task.elder}</TableCell>
-                  <TableCell>{task.time}</TableCell>
-                  <TableCell><Chip label={task.priority} size="small" color={getPriorityColor(task.priority)} /></TableCell>
-                  <TableCell>
-                    <Chip
-                      label={task.status}
-                      size="small"
-                      color={task.status === "completed" ? "success" : "warning"}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {task.status === "pending" && (
-                      <Button size="small" variant="contained" color="success" onClick={() => handleCompleteTask(task.id)}>
-                        Complete
-                      </Button>
-                    )}
-                    {task.status === "completed" && (
-                      <Chip icon={<CheckCircle />} label="Done" size="small" color="success" />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
-  );
-
-  const renderSchedule = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>Weekly Schedule</Typography>
-          <Button startIcon={<CalendarMonth />} variant="outlined">View Calendar</Button>
-        </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Day</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Elder</TableCell>
-                <TableCell>Activity</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {schedule.map((item) => (
-                <TableRow key={item.id} hover>
-                  <TableCell><Chip label={item.day} size="small" /></TableCell>
-                  <TableCell>{item.time}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Avatar sx={{ width: 28, height: 28 }}>{item.elder.charAt(0)}</Avatar>
-                      {item.elder}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{item.activity}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
-  );
-
-  const renderMessages = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>Messages</Typography>
-        <List>
-          {messages.map((msg) => (
-            <ListItem
-              key={msg.id}
-              sx={{
-                bgcolor: msg.read ? "#f5f5f5" : "#e3f2fd",
-                borderRadius: 2,
-                mb: 1,
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                setMessages(messages.map((m) => (m.id === msg.id ? { ...m, read: true } : m)));
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: msg.read ? "#e0e0e0" : "#1976d2" }}>{msg.from.charAt(0)}</Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={msg.from}
-                secondary={
-                  <>
-                    <Typography variant="body2" component="span">{msg.text}</Typography>
-                    <br />
-                    <Typography variant="caption" color="text.secondary">{msg.time}</Typography>
-                  </>
-                }
-                primaryTypographyProps={{ fontWeight: msg.read ? 400 : 600 }}
-              />
-              {!msg.read && <Chip label="New" size="small" color="primary" />}
-            </ListItem>
-          ))}
-        </List>
-      </CardContent>
-    </Card>
-  );
-
-  const renderAchievements = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>My Achievements</Typography>
-        <Grid container spacing={3}>
-          {achievements.map((achievement) => (
-            <Grid item xs={12} sm={6} md={4} key={achievement.id}>
-              <Paper
-                sx={{
-                  p: 3,
-                  textAlign: "center",
-                  opacity: achievement.earned ? 1 : 0.5,
-                  ...cardHoverSx,
-                }}
-              >
-                <Box sx={{ fontSize: 48, mb: 1 }}>{achievement.icon}</Box>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>{achievement.title}</Typography>
-                <Typography color="text.secondary" variant="body2">{achievement.description}</Typography>
-                {achievement.earned ? (
-                  <Chip label="Earned" color="success" size="small" sx={{ mt: 1 }} />
-                ) : (
-                  <Chip label="Locked" size="small" sx={{ mt: 1 }} />
-                )}
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </Card>
-  );
+  const handleSettings = () => {
+    setSettingsDialog(true);
+  };
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
       {/* Sidebar */}
-      <Box sx={{ width: 260, backgroundColor: "#2e7d32", color: "white", p: 2, display: "flex", flexDirection: "column" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-          <VolunteerActivism sx={{ fontSize: 32 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare</Typography>
+      <Box sx={{ width: 260, backgroundColor: "#1a1a2e", color: "white", display: "flex", flexDirection: "column", p: 2 }}>
+        {/* Logo */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 3, p: 1 }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", mr: 2 }}>
+            <CheckCircle sx={{ color: "white" }} />
+          </Box>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare</Typography>
+            <Typography variant="caption" sx={{ color: "#9ca3af" }}>Volunteer Portal</Typography>
+          </Box>
         </Box>
 
-        {/* Volunteer Profile Card */}
-        <Card sx={{ bgcolor: "rgba(255,255,255,0.1)", color: "white", mb: 3 }}>
-          <CardContent sx={{ p: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-              <Avatar sx={{ bgcolor: "#81c784" }}>{volunteerInfo.name.charAt(0)}</Avatar>
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{volunteerInfo.name}</Typography>
-                <Typography variant="caption">Volunteer</Typography>
-              </Box>
+        {/* User Profile */}
+        <Box sx={{ backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 2, p: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Avatar sx={{ bgcolor: "#3b82f6", mr: 2 }}>{profileData.name.split(" ").map(n => n[0]).join("")}</Avatar>
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>{profileData.name}</Typography>
+              <Typography variant="caption" sx={{ color: "#9ca3af" }}>Volunteer</Typography>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
-              <Typography variant="body2">Availability</Typography>
-              <Switch
-                checked={isAvailable}
-                onChange={(e) => {
-                  setIsAvailable(e.target.checked);
-                  setSnackbar({
-                    open: true,
-                    message: e.target.checked ? "You are now available" : "You are now unavailable",
-                    severity: "info",
-                  });
-                }}
-                color="default"
-                sx={{ "& .MuiSwitch-thumb": { bgcolor: isAvailable ? "#4caf50" : "#f44336" } }}
-              />
-            </Box>
-          </CardContent>
-        </Card>
+          </Box>
+        </Box>
 
-        <List>
-          {sidebarItems.map((item) => (
-            <ListItem
-              key={item.key}
-              onClick={() => setActiveTab(item.key)}
-              sx={{
-                borderRadius: 2,
-                mb: 1,
-                backgroundColor: activeTab === item.key ? "rgba(255,255,255,0.2)" : "transparent",
-                cursor: "pointer",
-                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-              }}
-            >
-              <ListItemAvatar sx={{ minWidth: 40 }}>
-                {item.badge ? (
-                  <Badge badgeContent={item.badge} color="error">{item.icon}</Badge>
-                ) : (
-                  item.icon
-                )}
-              </ListItemAvatar>
-              <ListItemText primary={item.label} />
+        {/* Menu Items */}
+        <List sx={{ flexGrow: 1 }}>
+          {menuItems.map((item, index) => (
+            <ListItem key={index} disablePadding>
+              <ListItemButton
+                onClick={() => setActiveMenu(item.label)}
+                sx={{
+                  borderRadius: 2, mb: 0.5,
+                  backgroundColor: activeMenu === item.label ? "rgba(59, 130, 246, 0.2)" : "transparent",
+                  "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)", transform: "translateX(5px)" },
+                  transition: "all 0.2s",
+                }}
+              >
+                <ListItemIcon sx={{ color: activeMenu === item.label ? "#3b82f6" : "white", minWidth: 40 }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} sx={{ color: activeMenu === item.label ? "#3b82f6" : "white" }} />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>
 
-        <Box sx={{ mt: "auto" }}>
-          <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 2 }} />
-          <Button fullWidth startIcon={<Logout />} onClick={handleLogout} sx={{ color: "white", justifyContent: "flex-start" }}>
-            Logout
-          </Button>
-        </Box>
+        <Divider sx={{ backgroundColor: "rgba(255,255,255,0.1)", my: 1 }} />
+
+        {/* Settings & Logout */}
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleSettings} sx={{ borderRadius: 2, mb: 0.5, "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)" } }}>
+              <ListItemIcon sx={{ color: "white", minWidth: 40 }}><Settings /></ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, color: "#ef4444", "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" } }}>
+              <ListItemIcon sx={{ color: "#ef4444", minWidth: 40 }}><Logout /></ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Box>
 
       {/* Main Content */}
-      <Box sx={{ flex: 1, p: 3 }}>
+      <Box sx={{ flexGrow: 1, p: 3, overflow: "auto" }}>
         {/* Header */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: "#2e7d32" }}>
-              {sidebarItems.find((i) => i.key === activeTab)?.label || "Dashboard"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Welcome back, {volunteerInfo.name}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Chip
-              icon={isAvailable ? <CheckCircle /> : <Close />}
-              label={isAvailable ? "Available" : "Unavailable"}
-              color={isAvailable ? "success" : "error"}
-            />
-            <IconButton onClick={() => setSnackbar({ open: true, message: "Notifications refreshed!", severity: "info" })}>
-              <Badge badgeContent={messages.filter((m) => !m.read).length} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-            <Avatar sx={{ bgcolor: "#2e7d32", cursor: "pointer" }}>{volunteerInfo.name.charAt(0)}</Avatar>
-          </Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
+            {activeMenu === "Dashboard" ? "Volunteer Dashboard" : activeMenu}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            {activeMenu === "Dashboard" && "Thank you for making a difference!"}
+            {activeMenu === "Help Requests" && "View and respond to help requests from elders"}
+            {activeMenu === "Messages" && "Communicate with elders and coordinators"}
+            {activeMenu === "Profile" && "Manage your volunteer profile and settings"}
+          </Typography>
         </Box>
 
-        {renderContent()}
-      </Box>
+        {/* Dashboard Section */}
+        {activeMenu === "Dashboard" && (
+          <>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              {[
+                { icon: <People />, label: "People Helped", value: stats.peopleHelped, color: "#1976d2", bg: "#eff6ff" },
+                { icon: <Favorite />, label: "Active Requests", value: stats.activeRequests, color: "#ec4899", bg: "#fdf2f8" },
+                { icon: <Star />, label: "Your Rating", value: stats.rating, color: "#f59e0b", bg: "#fff7ed" },
+                { icon: <AccessTime />, label: "Avg Response", value: stats.avgResponse, color: "#10b981", bg: "#f0fdf4" },
+              ].map((stat, i) => (
+                <Grid item xs={12} sm={6} md={3} key={i}>
+                  <Card sx={{ borderRadius: 3, boxShadow: 2, transition: "all 0.3s", "&:hover": { transform: "translateY(-5px)", boxShadow: 6 } }}>
+                    <CardContent sx={{ p: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                        <Box sx={{ p: 1, borderRadius: 2, bgcolor: stat.bg, mr: 1 }}>{React.cloneElement(stat.icon, { sx: { color: stat.color } })}</Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{stat.label}</Typography>
+                      </Box>
+                      <Typography variant="h4" sx={{ fontWeight: 700, color: stat.color }}>{stat.value}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
 
-      {/* Add Task Dialog */}
-      <Dialog open={openTaskDialog} onClose={() => setOpenTaskDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            Add New Task
-            <IconButton onClick={() => setOpenTaskDialog(false)}><Close /></IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel>Elder</InputLabel>
-              <Select value={newTask.elder} label="Elder" onChange={(e) => setNewTask({ ...newTask, elder: e.target.value })}>
-                {elders.map((e) => (
-                  <MenuItem key={e.id} value={e.name}>{e.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              label="Task Title"
-              value={newTask.title}
-              onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-            />
-            <TextField
-              fullWidth
-              label="Time"
-              type="time"
-              value={newTask.time}
-              onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-            />
-            <FormControl fullWidth>
-              <InputLabel>Priority</InputLabel>
-              <Select value={newTask.priority} label="Priority" onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}>
-                <MenuItem value="high">High</MenuItem>
-                <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="low">Low</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenTaskDialog(false)}>Cancel</Button>
-          <Button variant="contained" startIcon={<Add />} onClick={handleAddTask}>Add Task</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* View Elder Dialog */}
-      <Dialog open={openElderDialog} onClose={() => setOpenElderDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Elder Details</DialogTitle>
-        <DialogContent>
-          {selectedElder && (
-            <Box sx={{ pt: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                <Avatar sx={{ width: 64, height: 64, bgcolor: "#1976d2" }}>{selectedElder.name.charAt(0)}</Avatar>
-                <Box>
-                  <Typography variant="h6">{selectedElder.name}</Typography>
-                  <Typography color="text.secondary">Age: {selectedElder.age}</Typography>
-                </Box>
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>Nearby Elders</Typography>
+                <Chip label={`${nearbyElders.length} nearby`} color="primary" size="small" />
               </Box>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography variant="body2" color="text.secondary">Address</Typography>
-                  <Typography>{selectedElder.address}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Phone</Typography>
-                  <Typography>{selectedElder.phone}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Health Score</Typography>
-                  <Chip label={`${selectedElder.healthScore}%`} color={selectedElder.healthScore >= 80 ? "success" : "warning"} />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                  <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
-                    {selectedElder.conditions.map((c, i) => (
-                      <Chip key={i} label={c} size="small" variant="outlined" />
-                    ))}
-                  </Box>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body2" color="text.secondary">Emergency Contact</Typography>
-                  <Typography>{selectedElder.emergencyContact}</Typography>
-                </Grid>
+                {nearbyElders.map((elder) => (
+                  <Grid item xs={12} key={elder.id}>
+                    <Card sx={{ borderRadius: 3, boxShadow: 2, transition: "all 0.3s", "&:hover": { transform: "translateY(-3px)", boxShadow: 6 } }}>
+                      <CardContent sx={{ p: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Avatar sx={{ width: 56, height: 56, bgcolor: "#1976d2", mr: 2 }}>{elder.avatar}</Avatar>
+                            <Box>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>{elder.name}</Typography>
+                              <Typography variant="body2" color="text.secondary">{elder.address}</Typography>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+                                <Chip label={elder.status} size="small" sx={{ bgcolor: elder.statusColor, color: "white", fontWeight: 600 }} />
+                                <Typography variant="caption" color="text.secondary">Age: {elder.age}</Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button variant="outlined" size="small" startIcon={<Phone />} onClick={() => handleCall(elder)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Call</Button>
+                            <Button variant="outlined" size="small" startIcon={<Message />} onClick={() => handleMessage(elder)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Message</Button>
+                            <Button variant="contained" size="small" onClick={() => handleOfferHelp(elder)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Offer Help</Button>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
+            </Box>
+
+            <Card sx={{ borderRadius: 3, boxShadow: 2, bgcolor: "#f0fdf4", transition: "all 0.3s", "&:hover": { boxShadow: 6 } }}>
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircle sx={{ color: "#22c55e", mr: 2, fontSize: 32 }} />
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>Successfully helped Margaret Thompson</Typography>
+                    <Typography variant="body2" color="text.secondary">2 hours ago • 8 min response time</Typography>
+                  </Box>
+                  <Rating value={5} readOnly size="small" />
+                </Box>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* Help Requests Section */}
+        {activeMenu === "Help Requests" && (
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Active Help Requests</Typography>
+              <Chip label={`${nearbyElders.filter(e => !e.requestAccepted).length} Available`} color="warning" />
+            </Box>
+            <Grid container spacing={2}>
+              {nearbyElders.map((elder) => (
+                <Grid item xs={12} key={elder.id}>
+                  <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: elder.requestAccepted ? "4px solid #4caf50" : "4px solid #f59e0b", transition: "all 0.3s", "&:hover": { transform: "translateY(-3px)", boxShadow: 6 } }}>
+                    <CardContent sx={{ p: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Avatar sx={{ width: 56, height: 56, bgcolor: "#1976d2", mr: 2 }}>{elder.avatar}</Avatar>
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>{elder.name}</Typography>
+                            <Typography variant="body2" color="text.secondary">{elder.address}</Typography>
+                            <Typography variant="body2" sx={{ color: "#64748b", fontStyle: "italic", mt: 0.5 }}>{elder.condition}</Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button variant="outlined" size="small" startIcon={<Phone />} onClick={() => handleCall(elder)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Call</Button>
+                          {elder.requestAccepted ? (
+                            <Chip label="Accepted" color="success" icon={<CheckCircle />} />
+                          ) : (
+                            <Button variant="contained" size="small" color="success" onClick={() => handleAcceptRequest(elder.id)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Accept Request</Button>
+                          )}
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {/* Messages Section */}
+        {activeMenu === "Messages" && (
+          <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>Conversations</Typography>
+                <Button variant="contained" size="small" startIcon={<Send />} onClick={handleStartConversation} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>New Message</Button>
+              </Box>
+              <List>
+                {conversations.map((msg) => (
+                  <ListItem key={msg.id} sx={{ bgcolor: msg.unread ? "#eff6ff" : "#f5f7fa", borderRadius: 2, mb: 1, transition: "all 0.2s", "&:hover": { bgcolor: "#e0e7ff", transform: "translateX(5px)" } }}>
+                    <Avatar sx={{ bgcolor: msg.color, mr: 2 }}>{msg.avatar}</Avatar>
+                    <ListItemText 
+                      primary={<Typography sx={{ fontWeight: msg.unread ? 700 : 400 }}>{msg.from}</Typography>}
+                      secondary={`${msg.message} - ${msg.time}`}
+                    />
+                    <Button variant="outlined" size="small" onClick={() => handleReply(msg)} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.05)" } }}>Reply</Button>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Profile Section */}
+        {activeMenu === "Profile" && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ borderRadius: 3, boxShadow: 2, textAlign: "center", transition: "all 0.3s", "&:hover": { boxShadow: 6 } }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Avatar sx={{ width: 100, height: 100, bgcolor: "#1976d2", mx: "auto", mb: 2, fontSize: "2rem" }}>{profileData.name.split(" ").map(n => n[0]).join("")}</Avatar>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{profileData.name}</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Volunteer since Nov 2024</Typography>
+                  <Chip label="Active Volunteer" color="success" sx={{ mb: 2 }} />
+                  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mb: 2 }}>
+                    <Rating value={stats.rating} precision={0.1} readOnly />
+                    <Typography variant="body2" sx={{ ml: 1 }}>{stats.rating}/5.0</Typography>
+                  </Box>
+                  {!editingProfile ? (
+                    <Button variant="outlined" fullWidth startIcon={<Edit />} onClick={handleEditProfile} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.02)" } }}>Edit Profile</Button>
+                  ) : (
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Button variant="contained" fullWidth startIcon={<Save />} onClick={handleSaveProfile} sx={{ borderRadius: 2 }}>Save</Button>
+                      <Button variant="outlined" fullWidth startIcon={<Cancel />} onClick={handleCancelEdit} sx={{ borderRadius: 2 }}>Cancel</Button>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <Card sx={{ borderRadius: 3, boxShadow: 2, mb: 2, transition: "all 0.3s", "&:hover": { boxShadow: 6 } }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Profile Information</Typography>
+                  <Grid container spacing={2}>
+                    {[
+                      { label: "Email", field: "email" },
+                      { label: "Phone", field: "phone" },
+                      { label: "Skills", field: "skills" },
+                      { label: "Availability", field: "availability" },
+                    ].map((item) => (
+                      <Grid item xs={12} sm={6} key={item.field}>
+                        <Typography variant="caption" color="text.secondary">{item.label}</Typography>
+                        {editingProfile ? (
+                          <TextField fullWidth size="small" value={tempProfile[item.field]} onChange={(e) => setTempProfile({ ...tempProfile, [item.field]: e.target.value })} />
+                        ) : (
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>{profileData[item.field]}</Typography>
+                        )}
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+              <Card sx={{ borderRadius: 3, boxShadow: 2, transition: "all 0.3s", "&:hover": { boxShadow: 6 } }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Statistics</Typography>
+                  <Grid container spacing={2}>
+                    {[
+                      { label: "People Helped", value: 12, color: "#4caf50", bg: "#f0fdf4" },
+                      { label: "Avg Response", value: "5 min", color: "#1976d2", bg: "#eff6ff" },
+                      { label: "Hours Volunteered", value: 24, color: "#f59e0b", bg: "#fff7ed" },
+                      { label: "5-Star Ratings", value: 8, color: "#ec4899", bg: "#fdf2f8" },
+                    ].map((stat, i) => (
+                      <Grid item xs={6} key={i}>
+                        <Box sx={{ textAlign: "center", p: 2, bgcolor: stat.bg, borderRadius: 2, transition: "all 0.3s", "&:hover": { transform: "scale(1.02)" } }}>
+                          <Typography variant="h4" sx={{ fontWeight: 700, color: stat.color }}>{stat.value}</Typography>
+                          <Typography variant="body2" color="text.secondary">{stat.label}</Typography>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
+      </Box>
+
+      {/* Call Dialog */}
+      <Dialog open={callDialog.open} onClose={() => setCallDialog({ open: false, elder: null })}>
+        <DialogTitle><Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>Call Elder<IconButton onClick={() => setCallDialog({ open: false, elder: null })}><Close /></IconButton></Box></DialogTitle>
+        <DialogContent>
+          {callDialog.elder && (
+            <Box sx={{ textAlign: "center", py: 2 }}>
+              <Avatar sx={{ width: 80, height: 80, bgcolor: "#1976d2", mx: "auto", mb: 2, fontSize: "2rem" }}>{callDialog.elder.avatar}</Avatar>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>{callDialog.elder.name}</Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{callDialog.elder.phone}</Typography>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenElderDialog(false)}>Close</Button>
-          <Button variant="contained" onClick={() => { setOpenElderDialog(false); handleCallElder(selectedElder); }}>Call Elder</Button>
+          <Button onClick={() => setCallDialog({ open: false, elder: null })}>Cancel</Button>
+          <Button variant="contained" color="success" startIcon={<Phone />} onClick={handleMakeCall}>Call Now</Button>
         </DialogActions>
       </Dialog>
 
       {/* Message Dialog */}
-      <Dialog open={openMessageDialog} onClose={() => setOpenMessageDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Send Message to {selectedElder?.name}</DialogTitle>
+      <Dialog open={messageDialog.open} onClose={() => setMessageDialog({ open: false, elder: null, message: "" })} maxWidth="sm" fullWidth>
+        <DialogTitle><Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>Send Message<IconButton onClick={() => setMessageDialog({ open: false, elder: null, message: "" })}><Close /></IconButton></Box></DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            label="Your Message"
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            sx={{ mt: 2 }}
-          />
+          {messageDialog.elder && (
+            <Box sx={{ py: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Avatar sx={{ bgcolor: "#1976d2", mr: 2 }}>{messageDialog.elder.avatar}</Avatar>
+                <Typography variant="h6">{messageDialog.elder.name}</Typography>
+              </Box>
+              <TextField fullWidth multiline rows={4} placeholder="Type your message..." value={messageDialog.message} onChange={(e) => setMessageDialog({ ...messageDialog, message: e.target.value })} />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenMessageDialog(false)}>Cancel</Button>
-          <Button variant="contained" startIcon={<Message />} onClick={handleSendMessage}>Send Message</Button>
+          <Button onClick={() => setMessageDialog({ open: false, elder: null, message: "" })}>Cancel</Button>
+          <Button variant="contained" startIcon={<Send />} onClick={handleSendMessage}>Send</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyDialog.open} onClose={() => setReplyDialog({ open: false, message: null, reply: "" })} maxWidth="sm" fullWidth>
+        <DialogTitle>Reply to Message</DialogTitle>
+        <DialogContent>
+          {replyDialog.message && (
+            <Box sx={{ py: 2 }}>
+              <Box sx={{ bgcolor: "#f5f7fa", p: 2, borderRadius: 2, mb: 2 }}>
+                <Typography variant="body2" color="text.secondary">Original message from {replyDialog.message.from}:</Typography>
+                <Typography variant="body1">{replyDialog.message.message}</Typography>
+              </Box>
+              <TextField fullWidth multiline rows={3} placeholder="Type your reply..." value={replyDialog.reply} onChange={(e) => setReplyDialog({ ...replyDialog, reply: e.target.value })} />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReplyDialog({ open: false, message: null, reply: "" })}>Cancel</Button>
+          <Button variant="contained" startIcon={<Send />} onClick={handleSendReply}>Send Reply</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Compose Dialog */}
+      <Dialog open={composeDialog} onClose={() => setComposeDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>New Message</DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2 }}>
+            <TextField fullWidth label="To" placeholder="Enter recipient name" value={newMessage.to} onChange={(e) => setNewMessage({ ...newMessage, to: e.target.value })} sx={{ mb: 2 }} />
+            <TextField fullWidth multiline rows={4} label="Message" placeholder="Type your message..." value={newMessage.message} onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })} />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setComposeDialog(false)}>Cancel</Button>
+          <Button variant="contained" startIcon={<Send />} onClick={handleSendNewMessage}>Send</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsDialog} onClose={() => setSettingsDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Settings</DialogTitle>
+        <DialogContent>
+          <List>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+              <ListItemText primary="Notifications" secondary="Receive push notifications" />
+              <Chip label="Enabled" color="success" size="small" />
+            </ListItem>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+              <ListItemText primary="Location Services" secondary="Share your location" />
+              <Chip label="Enabled" color="success" size="small" />
+            </ListItem>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2 }}>
+              <ListItemText primary="Availability Status" secondary="Show when available" />
+              <Chip label="Available" color="primary" size="small" />
+            </ListItem>
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsDialog(false)}>Close</Button>
+          <Button variant="contained" onClick={() => { setSettingsDialog(false); setSnackbar({ open: true, message: "Settings saved!", severity: "success" }); }}>Save</Button>
         </DialogActions>
       </Dialog>
 
       {/* Snackbar */}
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
       </Snackbar>
     </Box>
