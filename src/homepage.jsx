@@ -32,7 +32,7 @@ export default function HomePage() {
                     </p>
                     <div className="hero-buttons">
                         <button className="btn primary glow" onClick={() => navigate('/signup')}>Get Started</button>
-                        <button className="btn secondary">Learn More</button>
+                        <button className="btn secondary" onClick={() => document.querySelector('.audience').scrollIntoView({ behavior: 'smooth' })}>Learn More</button>
                     </div>
                 </div>
             </section>
