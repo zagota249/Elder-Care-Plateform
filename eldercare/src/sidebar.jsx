@@ -3,23 +3,19 @@ import "./elder.css";
 
 const Sidebar = ({active, setActive}) => {  
     const items=[
-
-        {
-            id:"home",label:"Home",icon:"fa fa-home"},
-            {id:"profile",label:"Profile",icon:"fa fa-user"},
-            {id:"tasks",label:"Tasks",icon:"fa fa-tasks"},
-            {id:"medications",label:"Medications",icon:"fa fa-pills"},
-            {id:"emergency",label:"Emergency",icon:"fa fa-phone"},
-            {id:"settings",label:"Settings",icon:"fa fa-cog"},
-            {id:"logout",label:"Logout",icon:"fa fa-sign-out-alt"},
-
-
+        {id:"home", label:"Home", icon:"fa-solid fa-house"},
+        {id:"profile", label:"Profile", icon:"fa-solid fa-user"},
+        {id:"tasks", label:"Tasks", icon:"fa-solid fa-list-check"},
+        {id:"medications", label:"Medications", icon:"fa-solid fa-pills"},
+        {id:"emergency", label:"Emergency", icon:"fa-solid fa-phone"},
+        {id:"settings", label:"Settings", icon:"fa-solid fa-gear"},
+        {id:"logout", label:"Logout", icon:"fa-solid fa-right-from-bracket"},
     ];
     return (
        <aside className="sidebar">
       <div className="sidebar-top">
         <img
-          src="/mnt/data/0cc31bac-a798-48fa-a6f6-a6d28de76a77.png"
+          src="/logo.png"
           alt="logo"
           className="logo"
         />
@@ -33,7 +29,7 @@ const Sidebar = ({active, setActive}) => {
             className={`nav-item ${active === it.id ? "active" : ""}`}
             onClick={() => setActive(it.id)}
           >
-            <span className="nav-icon">{it.icon}</span>
+            <i className={`nav-icon ${it.icon}`}></i>
             <span className="nav-label">{it.label}</span>
           </div>
         ))}
