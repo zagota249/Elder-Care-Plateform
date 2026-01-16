@@ -226,72 +226,9 @@ export default function VolunteerDashboard() {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 260, backgroundColor: "#1a1a2e", color: "white", display: "flex", flexDirection: "column", p: 2 }}>
-        {/* Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3, p: 1 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", mr: 2 }}>
-            <CheckCircle sx={{ color: "white" }} />
-          </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare</Typography>
-            <Typography variant="caption" sx={{ color: "#9ca3af" }}>Volunteer Portal</Typography>
-          </Box>
-        </Box>
-
-        {/* User Profile */}
-        <Box sx={{ backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 2, p: 2, mb: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Avatar sx={{ bgcolor: "#3b82f6", mr: 2 }}>{profileData.name.split(" ").map(n => n[0]).join("")}</Avatar>
-            <Box>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>{profileData.name}</Typography>
-              <Typography variant="caption" sx={{ color: "#9ca3af" }}>Volunteer</Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Menu Items */}
-        <List sx={{ flexGrow: 1 }}>
-          {menuItems.map((item, index) => (
-            <ListItem key={index} disablePadding>
-              <ListItemButton
-                onClick={() => setActiveMenu(item.label)}
-                sx={{
-                  borderRadius: 2, mb: 0.5,
-                  backgroundColor: activeMenu === item.label ? "rgba(59, 130, 246, 0.2)" : "transparent",
-                  "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)", transform: "translateX(5px)" },
-                  transition: "all 0.2s",
-                }}
-              >
-                <ListItemIcon sx={{ color: activeMenu === item.label ? "#3b82f6" : "white", minWidth: 40 }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} sx={{ color: activeMenu === item.label ? "#3b82f6" : "white" }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-
-        <Divider sx={{ backgroundColor: "rgba(255,255,255,0.1)", my: 1 }} />
-
-        {/* Settings & Logout */}
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleSettings} sx={{ borderRadius: 2, mb: 0.5, "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)" } }}>
-              <ListItemIcon sx={{ color: "white", minWidth: 40 }}><Settings /></ListItemIcon>
-              <ListItemText primary="Settings" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, color: "#ef4444", "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" } }}>
-              <ListItemIcon sx={{ color: "#ef4444", minWidth: 40 }}><Logout /></ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-
+    <>
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, p: 3, overflow: "auto" }}>
+      <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
         {/* Header */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
@@ -616,6 +553,6 @@ export default function VolunteerDashboard() {
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
