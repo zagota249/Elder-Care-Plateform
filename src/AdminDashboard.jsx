@@ -242,121 +242,24 @@ export default function AdminDashboard() {
     const config = statusConfig[status] || statusConfig.inactive;
     return (
       <Chip 
-        label={config.label} 
-        size="small" 
-        sx={{ 
-          backgroundColor: config.bg, 
-          color: config.color,
-          fontWeight: 600,
-          fontSize: "0.75rem"
-        }} 
-      />
-    );
-  };
-
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
-      {/* Sidebar */}
-      <Box
-        sx={{
-          width: 240,
-          backgroundColor: "#1e3a5f",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-          position: "fixed",
-          height: "100vh",
-        }}
-      >
-        {/* Logo */}
-        <Box sx={{ p: 2.5, display: "flex", alignItems: "center", gap: 1.5, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <Box sx={{ 
-            width: 40, 
-            height: 40, 
-            borderRadius: "50%", 
-            backgroundColor: "#4fc3f7",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
-            fontSize: "1.2rem"
-          }}>
-            EC
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 700, fontSize: "1.1rem" }}>ElderCare</Typography>
-            <Typography sx={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)" }}>Support & Coordination</Typography>
-          </Box>
-        </Box>
-
-        {/* Admin Info */}
-        <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <Avatar sx={{ bgcolor: "#7c4dff", width: 36, height: 36 }}>AU</Avatar>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>Admin User</Typography>
-            <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.7)" }}>Admin</Typography>
-          </Box>
-        </Box>
-
-        {/* Navigation */}
-        <Box sx={{ flex: 1, py: 2 }}>
-          {navItems.map((item) => (
-            <Box
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2.5,
-                py: 1.5,
-                cursor: "pointer",
-                backgroundColor: activeNav === item.id ? "rgba(79, 195, 247, 0.2)" : "transparent",
-                borderLeft: activeNav === item.id ? "3px solid #4fc3f7" : "3px solid transparent",
-                transition: "all 0.2s",
-                "&:hover": {
-                  backgroundColor: "rgba(255,255,255,0.1)",
-                },
-              }}
-            >
-              <Box sx={{ color: activeNav === item.id ? "#4fc3f7" : "rgba(255,255,255,0.7)" }}>
-                {item.icon}
-              </Box>
-              <Typography sx={{ 
-                fontSize: "0.9rem", 
-                fontWeight: activeNav === item.id ? 600 : 400,
-                color: activeNav === item.id ? "#fff" : "rgba(255,255,255,0.7)"
-              }}>
-                {item.label}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Logout */}
-        <Box sx={{ p: 2, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-          <Button 
-            startIcon={<Logout />} 
-            fullWidth 
-            sx={{ 
-              color: "rgba(255,255,255,0.7)", 
-              justifyContent: "flex-start",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" }
-            }}
-            onClick={() => {
-              localStorage.removeItem("token");
-              localStorage.removeItem("user");
-              navigate("/signin");
-            }}
-          >
-            Logout
-          </Button>
-        </Box>
+    <>
+      <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
+        ...existing content...
       </Box>
-
-      {/* Main Content */}
-      <Box sx={{ flex: 1, ml: "240px" }}>
-        {/* Header */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+      {/* ...all other dialogs and modals here... */}
+    </>
+  );
         <Box
           sx={{
             backgroundColor: "white",
@@ -1263,4 +1166,3 @@ export default function AdminDashboard() {
       </Snackbar>
     </Box>
   );
-}
