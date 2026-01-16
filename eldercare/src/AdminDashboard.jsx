@@ -17,16 +17,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Badge,
   Menu,
   MenuItem,
   Divider,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import {
   Search,
@@ -46,8 +40,6 @@ import {
   FilterList,
   LocationOn,
   AccessTime,
-  Phone,
-  Email,
   Person,
   Settings,
   Logout,
@@ -126,17 +118,8 @@ export default function AdminDashboard() {
     { name: "Volunteers", value: 25, color: "#2196F3" },
   ];
 
-  // Dialog States
-  const [openUserDialog, setOpenUserDialog] = useState(false);
-  const [openVolunteerDialog, setOpenVolunteerDialog] = useState(false);
-  const [openAlertDialog, setOpenAlertDialog] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   // eslint-disable-next-line no-unused-vars
   const [settingsDialog, setSettingsDialog] = useState(false);
-  const [addUserDialog, setAddUserDialog] = useState(false);
-  const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "elder" });
-  const [editUserDialog, setEditUserDialog] = useState({ open: false, user: null });
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -144,23 +127,17 @@ export default function AdminDashboard() {
     day: "numeric",
   });
 
-  const handleNavClick = (nav) => {
-    setActiveNav(nav);
-  };
-
   const handleApproveVolunteer = (id) => {
     setVolunteers(volunteers.map(v => 
       v.id === id ? { ...v, status: "approved" } : v
     ));
     setStats(prev => ({ ...prev, activeVolunteers: prev.activeVolunteers + 1 }));
-    setSnackbar({ open: true, message: "Volunteer approved successfully!", severity: "success" });
   };
 
   const handleRejectVolunteer = (id) => {
     setVolunteers(volunteers.map(v => 
       v.id === id ? { ...v, status: "rejected" } : v
     ));
-    setSnackbar({ open: true, message: "Volunteer rejected.", severity: "info" });
   };
 
   const handleResolveAlert = (id) => {
@@ -168,66 +145,31 @@ export default function AdminDashboard() {
       a.id === id ? { ...a, status: "resolved" } : a
     ));
     setStats(prev => ({ ...prev, activeSosAlerts: Math.max(0, prev.activeSosAlerts - 1) }));
-    setSnackbar({ open: true, message: "Alert resolved successfully!", severity: "success" });
   };
 
   const handleDeleteUser = (id) => {
     setUsers(users.filter(u => u.id !== id));
-    setSnackbar({ open: true, message: "User deleted successfully!", severity: "info" });
   };
 
   const handleGenerateReport = (reportType) => {
-    setSnackbar({ open: true, message: `Generating ${reportType} report...`, severity: "info" });
-    setTimeout(() => {
-      setSnackbar({ open: true, message: `${reportType} report downloaded successfully!`, severity: "success" });
-    }, 1500);
-  };
-
-  const handleAddUser = () => {
-    if (newUser.name.trim() && newUser.email.trim()) {
-      setUsers(prev => [...prev, { id: Date.now(), ...newUser, status: "active", joinDate: new Date().toLocaleDateString() }]);
-      setSnackbar({ open: true, message: "User added successfully!", severity: "success" });
-      setAddUserDialog(false);
-      setNewUser({ name: "", email: "", phone: "", role: "elder" });
-    }
-  };
-
-  const handleEditUser = (user) => {
-    setEditUserDialog({ open: true, user: { ...user } });
-  };
-
-  const handleSaveEditUser = () => {
-    setUsers(prev => prev.map(u => u.id === editUserDialog.user.id ? editUserDialog.user : u));
-    setSnackbar({ open: true, message: "User updated successfully!", severity: "success" });
-    setEditUserDialog({ open: false, user: null });
+    alert(`Generating ${reportType} report...`);
   };
 
   const handleRefresh = () => {
-    setSnackbar({ open: true, message: "Data refreshed!", severity: "success" });
+    alert("Data refreshed!");
   };
 
   const handleViewUser = (user) => {
-    setSelectedItem(user);
-    setOpenUserDialog(true);
+    alert(`User: ${user.name}\nEmail: ${user.email}\nRole: ${user.role}\nStatus: ${user.status}`);
   };
 
   const handleViewVolunteer = (volunteer) => {
-    setSelectedItem(volunteer);
-    setOpenVolunteerDialog(true);
+    alert(`Volunteer: ${volunteer.name}\nEmail: ${volunteer.email}\nSkills: ${volunteer.skills}\nStatus: ${volunteer.status}`);
   };
 
-  const handleViewAlert = (alert) => {
-    setSelectedItem(alert);
-    setOpenAlertDialog(true);
+  const handleViewAlert = (alertItem) => {
+    alert(`SOS Alert\nElder: ${alertItem.elder}\nAddress: ${alertItem.address}\nStatus: ${alertItem.status}\nTime: ${alertItem.time}`);
   };
-
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: <Dashboard /> },
-    { id: "users", label: "Users", icon: <People /> },
-    { id: "volunteers", label: "Volunteers", icon: <VolunteerActivism /> },
-    { id: "sosAlerts", label: "SOS Alerts", icon: <Warning /> },
-    { id: "reports", label: "Reports", icon: <Assessment /> },
-  ];
 
   const getStatusChip = (status) => {
     const statusConfig = {
@@ -328,8 +270,8 @@ export default function AdminDashboard() {
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
         >
-          <MenuItem onClick={() => { setAnchorEl(null); setSnackbar({ open: true, message: "Profile view coming soon!", severity: "info" }); }}><Person sx={{ mr: 1 }} /> Profile</MenuItem>
-          <MenuItem onClick={() => { setAnchorEl(null); setSettingsDialog(true); }}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
+          <MenuItem onClick={() => { setAnchorEl(null); alert("Profile view coming soon!"); }}><Person sx={{ mr: 1 }} /> Profile</MenuItem>
+          <MenuItem onClick={() => { setAnchorEl(null); alert("Settings coming soon!"); }}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
           <Divider />
           <MenuItem sx={{ color: "#f44336" }} onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/signin"); }}><Logout sx={{ mr: 1 }} /> Logout</MenuItem>
         </Menu>
@@ -600,7 +542,7 @@ export default function AdminDashboard() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <Button variant="outlined" startIcon={<Refresh />} onClick={handleRefresh} sx={{ borderRadius: 2, textTransform: "none" }}>Refresh</Button>
                   <Button variant="outlined" startIcon={<FilterList />} sx={{ borderRadius: 2, textTransform: "none" }}>Filter</Button>
-                  <Button variant="contained" startIcon={<Add />} onClick={() => setAddUserDialog(true)} sx={{ borderRadius: 2, textTransform: "none" }}>Add User</Button>
+                  <Button variant="contained" startIcon={<Add />} onClick={() => alert("Add User dialog coming soon!")} sx={{ borderRadius: 2, textTransform: "none" }}>Add User</Button>
                 </Box>
               </Box>
 
@@ -646,7 +588,7 @@ export default function AdminDashboard() {
                           <TableCell>
                             <Box sx={{ display: "flex", gap: 0.5 }}>
                               <IconButton size="small" onClick={() => handleViewUser(user)}><Visibility fontSize="small" /></IconButton>
-                              <IconButton size="small" onClick={() => handleEditUser(user)}><Edit fontSize="small" /></IconButton>
+                              <IconButton size="small" onClick={() => alert(`Edit user: ${user.name}`)}><Edit fontSize="small" /></IconButton>
                               <IconButton size="small" onClick={() => handleDeleteUser(user.id)} sx={{ color: "#f44336" }}><Delete fontSize="small" /></IconButton>
                             </Box>
                           </TableCell>
