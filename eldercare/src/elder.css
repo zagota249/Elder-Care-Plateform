@@ -1,3 +1,35 @@
+/* App shell layout for dashboard */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.sidebar {
+  width: 240px;
+  background: #1a1a2e;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.main-content {
+  margin-left: 0;
+  width: 100%;
+  padding: 28px;
+  transition: margin-left 0.2s;
+}
+
+.main-content.with-sidebar {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+}
+
 /* Reset & body */
 * { box-sizing: border-box; }
 body {

@@ -13,16 +13,39 @@ import VolunteerDashboard from "./VolunteerDashboard";
 import "./App.css";
 
 export default function App() {
-  const [active, setActive] = useState("home");
   const location = useLocation();
+  const [sidebarActive, setSidebarActive] = useState("home");
 
   // Sidebar only visible on dashboard routes
   const showSidebar = ["/home", "/admin", "/family", "/volunteer"].includes(location.pathname);
 
+  // Navigation handler for sidebar
+  const handleSidebarNav = (id) => {
+    setSidebarActive(id);
+    // Map sidebar id to route
+    const routeMap = {
+      home: "/home",
+      profile: "/profile",
+      tasks: "/tasks",
+      medications: "/medications",
+      emergency: "/emergency",
+      settings: "/settings",
+      logout: "/signin",
+      admin: "/admin",
+      family: "/family",
+      volunteer: "/volunteer",
+    };
+    const path = routeMap[id] || "/";
+    if (location.pathname !== path) {
+      window.location.href = path;
+    }
+  };
+
   return (
     <div className="app-shell">
-      {showSidebar && <Sidebar active={active} setActive={setActive} />}
-
+      {showSidebar && (
+        <Sidebar active={sidebarActive} setActive={handleSidebarNav} />
+      )}
       <div className={`main-content ${showSidebar ? "with-sidebar" : ""}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
