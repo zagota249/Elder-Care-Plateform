@@ -26,8 +26,7 @@ import {
   MenuItem,
   Divider,
   Snackbar,
-  Paper,
-  Switch,
+  Alert,
 } from "@mui/material";
 import {
   Search,
@@ -47,19 +46,27 @@ import {
   FilterList,
   LocationOn,
   AccessTime,
+  Phone,
+  Email,
+  Person,
+  Settings,
+  Logout,
+  Close,
+  Check,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-
-// Card hover style
-const cardHoverSx = {
-  borderRadius: 3,
-  boxShadow: 2,
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "translateY(-5px)",
-    boxShadow: 6,
-  },
-};
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -119,24 +126,23 @@ export default function AdminDashboard() {
     { name: "Volunteers", value: 25, color: "#2196F3" },
   ];
 
-  // Settings
-  const [settings, setSettings] = useState({
-    notifications: true,
-    emailAlerts: true,
-    smsAlerts: false,
-    autoBackup: true,
+  // Dialog States
+  const [openUserDialog, setOpenUserDialog] = useState(false);
+  const [openVolunteerDialog, setOpenVolunteerDialog] = useState(false);
+  const [openAlertDialog, setOpenAlertDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  // eslint-disable-next-line no-unused-vars
+  const [settingsDialog, setSettingsDialog] = useState(false);
+  const [addUserDialog, setAddUserDialog] = useState(false);
+  const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "elder" });
+  const [editUserDialog, setEditUserDialog] = useState({ open: false, user: null });
+
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
   });
-
-  // New User Form
-  const [newUser, setNewUser] = useState({ name: "", email: "", role: "elder", status: "active", phone: "" });
-
-  // System Health
-  const systemHealth = [
-    { service: "API Server", status: "operational", uptime: "99.9%" },
-    { service: "Database", status: "operational", uptime: "99.8%" },
-    { service: "Notifications", status: "operational", uptime: "99.5%" },
-    { service: "Video Calls", status: "degraded", uptime: "95.2%" },
-  ];
 
   const handleNavClick = (nav) => {
     setActiveNav(nav);
@@ -215,208 +221,543 @@ export default function AdminDashboard() {
     setOpenAlertDialog(true);
   };
 
-  const sidebarItems = [
-    { icon: <Dashboard />, label: "Dashboard", key: "dashboard" },
-    { icon: <People />, label: "Users", key: "users" },
-    { icon: <ElderlyWoman />, label: "Elders", key: "elders" },
-    { icon: <VolunteerActivism />, label: "Volunteers", key: "volunteers" },
-    { icon: <Report />, label: "Reports", key: "reports" },
-    { icon: <BarChart />, label: "Analytics", key: "analytics" },
-    { icon: <Settings />, label: "Settings", key: "settings" },
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <Dashboard /> },
+    { id: "users", label: "Users", icon: <People /> },
+    { id: "volunteers", label: "Volunteers", icon: <VolunteerActivism /> },
+    { id: "sosAlerts", label: "SOS Alerts", icon: <Warning /> },
+    { id: "reports", label: "Reports", icon: <Assessment /> },
   ];
 
-  const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Render content based on active tab
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return renderDashboard();
-      case "users":
-        return renderUsers();
-      case "elders":
-        return renderElders();
-      case "volunteers":
-        return renderVolunteers();
-      case "reports":
-        return renderReports();
-      case "analytics":
-        return renderAnalytics();
-      case "settings":
-        return renderSettings();
-      default:
-        return renderDashboard();
-    }
+  const getStatusChip = (status) => {
+    const statusConfig = {
+      active: { color: "#4caf50", bg: "#e8f5e9", label: "Active" },
+      pending: { color: "#ff9800", bg: "#fff3e0", label: "Pending" },
+      approved: { color: "#4caf50", bg: "#e8f5e9", label: "Approved" },
+      rejected: { color: "#f44336", bg: "#ffebee", label: "Rejected" },
+      resolved: { color: "#4caf50", bg: "#e8f5e9", label: "Resolved" },
+      responded: { color: "#2196f3", bg: "#e3f2fd", label: "Responded" },
+      inactive: { color: "#9e9e9e", bg: "#f5f5f5", label: "Inactive" },
+    };
+    const config = statusConfig[status] || statusConfig.inactive;
+    return (
+      <Chip 
+        label={config.label} 
+        size="small" 
+        sx={{ 
+          backgroundColor: config.bg, 
+          color: config.color,
+          fontWeight: 600,
+          fontSize: "0.75rem"
+        }} 
+      />
+    );
   };
 
-  const renderDashboard = () => (
-    <>
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {statsData.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={cardHoverSx}>
-              <CardContent>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <Box>
-                    <Typography color="text.secondary" variant="body2">{stat.label}</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 700, my: 1 }}>{stat.value}</Typography>
-                    <Chip label={stat.change} size="small" color={stat.change.startsWith("+") ? "success" : "error"} sx={{ height: 20 }} />
-                  </Box>
-                  <Avatar sx={{ bgcolor: stat.color, width: 56, height: 56 }}>{stat.icon}</Avatar>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Grid container spacing={3}>
-        {/* Recent Users */}
-        <Grid item xs={12} lg={8}>
-          <Card sx={cardHoverSx}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Users</Typography>
-                <Button startIcon={<PersonAdd />} variant="contained" size="small" onClick={() => setOpenAddDialog(true)}>
-                  Add User
-                </Button>
-              </Box>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {users.slice(0, 5).map((user) => (
-                      <TableRow key={user.id} hover>
-                        <TableCell>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Avatar sx={{ width: 32, height: 32 }}>{user.name.charAt(0)}</Avatar>
-                            {user.name}
-                          </Box>
-                        </TableCell>
-                        <TableCell><Chip label={user.role} size="small" color={getRoleColor(user.role)} /></TableCell>
-                        <TableCell><Chip label={user.status} size="small" color={getStatusColor(user.status)} variant="outlined" /></TableCell>
-                        <TableCell>
-                          <IconButton size="small" onClick={() => handleViewUser(user)}><Visibility fontSize="small" /></IconButton>
-                          <IconButton size="small" onClick={() => handleEditUser(user)}><Edit fontSize="small" /></IconButton>
-                          <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.id)}><Delete fontSize="small" /></IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Button fullWidth sx={{ mt: 2 }} onClick={() => setActiveTab("users")}>View All Users</Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Emergency Alerts & System Health */}
-        <Grid item xs={12} lg={4}>
-          <Card sx={{ ...cardHoverSx, mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
-                <Warning color="error" /> Emergency Alerts
-              </Typography>
-              <List dense>
-                {emergencyAlerts.map((alert) => (
-                  <ListItem key={alert.id} sx={{ px: 0 }} secondaryAction={
-                    alert.status === "active" && (
-                      <Button size="small" color="success" onClick={() => handleResolveAlert(alert.id)}>Resolve</Button>
-                    )
-                  }>
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: alert.status === "active" ? "#ffebee" : "#e8f5e9", width: 40, height: 40 }}>
-                        {alert.status === "active" ? <Warning color="error" fontSize="small" /> : <CheckCircle color="success" fontSize="small" />}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={alert.elder} secondary={`${alert.type} • ${alert.time}`} />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-
-          <Card sx={cardHoverSx}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>System Health</Typography>
-              {systemHealth.map((service, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                    <Typography variant="body2">{service.service}</Typography>
-                    <Chip label={service.status} size="small" color={getStatusColor(service.status)} />
-                  </Box>
-                  <LinearProgress variant="determinate" value={parseFloat(service.uptime)} sx={{ height: 6, borderRadius: 3 }} color={getStatusColor(service.status)} />
-                </Box>
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </>
-  );
-
-  const renderUsers = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>User Management</Typography>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField size="small" placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }} />
-            <Button startIcon={<PersonAdd />} variant="contained" onClick={() => setOpenAddDialog(true)}>Add User</Button>
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
+      {/* Sidebar */}
+      <Box
+        sx={{
+          width: 240,
+          backgroundColor: "#1e3a5f",
+          color: "white",
+          display: "flex",
+          flexDirection: "column",
+          position: "fixed",
+          height: "100vh",
+        }}
+      >
+        {/* Logo */}
+        <Box sx={{ p: 2.5, display: "flex", alignItems: "center", gap: 1.5, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <Box sx={{ 
+            width: 40, 
+            height: 40, 
+            borderRadius: "50%", 
+            backgroundColor: "#4fc3f7",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
+            fontSize: "1.2rem"
+          }}>
+            EC
+          </Box>
+          <Box>
+            <Typography sx={{ fontWeight: 700, fontSize: "1.1rem" }}>ElderCare</Typography>
+            <Typography sx={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)" }}>Support & Coordination</Typography>
           </Box>
         </Box>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Join Date</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id} hover>
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Avatar sx={{ width: 32, height: 32 }}>{user.name.charAt(0)}</Avatar>
-                      {user.name}
+
+        {/* Admin Info */}
+        <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1.5, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <Avatar sx={{ bgcolor: "#7c4dff", width: 36, height: 36 }}>AU</Avatar>
+          <Box>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>Admin User</Typography>
+            <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.7)" }}>Admin</Typography>
+          </Box>
+        </Box>
+
+        {/* Navigation */}
+        <Box sx={{ flex: 1, py: 2 }}>
+          {navItems.map((item) => (
+            <Box
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                px: 2.5,
+                py: 1.5,
+                cursor: "pointer",
+                backgroundColor: activeNav === item.id ? "rgba(79, 195, 247, 0.2)" : "transparent",
+                borderLeft: activeNav === item.id ? "3px solid #4fc3f7" : "3px solid transparent",
+                transition: "all 0.2s",
+                "&:hover": {
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                },
+              }}
+            >
+              <Box sx={{ color: activeNav === item.id ? "#4fc3f7" : "rgba(255,255,255,0.7)" }}>
+                {item.icon}
+              </Box>
+              <Typography sx={{ 
+                fontSize: "0.9rem", 
+                fontWeight: activeNav === item.id ? 600 : 400,
+                color: activeNav === item.id ? "#fff" : "rgba(255,255,255,0.7)"
+              }}>
+                {item.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Logout */}
+        <Box sx={{ p: 2, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          <Button 
+            startIcon={<Logout />} 
+            fullWidth 
+            sx={{ 
+              color: "rgba(255,255,255,0.7)", 
+              justifyContent: "flex-start",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" }
+            }}
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              navigate("/signin");
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Main Content */}
+      <Box sx={{ flex: 1, ml: "240px" }}>
+        {/* Header */}
+        <Box
+          sx={{
+            backgroundColor: "white",
+            px: 3,
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "1px solid #e0e0e0",
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+          }}
+        >
+          <TextField
+            placeholder="Search..."
+            size="small"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ width: 300 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: "#9e9e9e" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Typography sx={{ color: "#666" }}>{currentDate}</Typography>
+            <IconButton onClick={(e) => setNotificationAnchor(e.currentTarget)}>
+              <Badge badgeContent={notifications.filter(n => !n.read).length} color="error">
+                <Notifications />
+              </Badge>
+            </IconButton>
+            <Avatar 
+              sx={{ bgcolor: "#7c4dff", cursor: "pointer" }}
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+            >
+              AU
+            </Avatar>
+          </Box>
+        </Box>
+
+        {/* Notification Menu */}
+        <Menu
+          anchorEl={notificationAnchor}
+          open={Boolean(notificationAnchor)}
+          onClose={() => setNotificationAnchor(null)}
+          PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
+        >
+          <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
+            <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
+          </Box>
+          {notifications.map((notif) => (
+            <MenuItem key={notif.id} sx={{ py: 1.5, backgroundColor: notif.read ? "transparent" : "#e3f2fd" }}>
+              <Box>
+                <Typography sx={{ fontSize: "0.85rem" }}>{notif.message}</Typography>
+                <Typography sx={{ fontSize: "0.75rem", color: "#999" }}>{notif.time}</Typography>
+              </Box>
+            </MenuItem>
+          ))}
+        </Menu>
+
+        {/* Profile Menu */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+          <MenuItem onClick={() => { setAnchorEl(null); setSnackbar({ open: true, message: "Profile view coming soon!", severity: "info" }); }}><Person sx={{ mr: 1 }} /> Profile</MenuItem>
+          <MenuItem onClick={() => { setAnchorEl(null); setSettingsDialog(true); }}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
+          <Divider />
+          <MenuItem sx={{ color: "#f44336" }} onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/signin"); }}><Logout sx={{ mr: 1 }} /> Logout</MenuItem>
+        </Menu>
+
+        {/* Content Area */}
+        <Box sx={{ p: 3 }}>
+          {/* DASHBOARD SECTION */}
+          {activeNav === "dashboard" && (
+            <>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e3a5f" }}>Admin Dashboard</Typography>
+                <Typography sx={{ color: "#666" }}>System overview and management</Typography>
+              </Box>
+
+              {/* Stats Cards */}
+              <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 3, mb: 3 }}>
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 0.5 }}>Total Elders</Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: "#1e3a5f" }}>
+                          <People sx={{ fontSize: 28, mr: 1, verticalAlign: "middle", color: "#4caf50" }} />
+                          {stats.totalElders}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell><Chip label={user.role} size="small" color={getRoleColor(user.role)} /></TableCell>
-                  <TableCell><Chip label={user.status} size="small" color={getStatusColor(user.status)} variant="outlined" /></TableCell>
-                  <TableCell>{user.joinDate}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" onClick={() => handleViewUser(user)}><Visibility fontSize="small" /></IconButton>
-                    <IconButton size="small" onClick={() => handleEditUser(user)}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.id)}><Delete fontSize="small" /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>
-  );
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                      <TrendingUp sx={{ color: "#4caf50", fontSize: 16, mr: 0.5 }} />
+                      <Typography sx={{ color: "#4caf50", fontSize: "0.75rem" }}>+5% from last month</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 0.5 }}>Active Volunteers</Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: "#1e3a5f" }}>
+                          <VolunteerActivism sx={{ fontSize: 28, mr: 1, verticalAlign: "middle", color: "#2196f3" }} />
+                          {stats.activeVolunteers}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                      <TrendingUp sx={{ color: "#4caf50", fontSize: 16, mr: 0.5 }} />
+                      <Typography sx={{ color: "#4caf50", fontSize: "0.75rem" }}>+8% from last month</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 0.5 }}>Active SOS Alerts</Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: "#1e3a5f" }}>
+                          <Warning sx={{ fontSize: 28, mr: 1, verticalAlign: "middle", color: "#ff9800" }} />
+                          {stats.activeSosAlerts}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                      <CheckCircle sx={{ color: "#4caf50", fontSize: 16, mr: 0.5 }} />
+                      <Typography sx={{ color: "#666", fontSize: "0.75rem" }}>All resolved</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <Box>
+                        <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 0.5 }}>Avg Response Time</Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: "#1e3a5f" }}>
+                          <AccessTime sx={{ fontSize: 28, mr: 1, verticalAlign: "middle", color: "#9c27b0" }} />
+                          {stats.avgResponseTime}
+                          <Typography component="span" sx={{ fontSize: "1rem", fontWeight: 400 }}>m</Typography>
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                      <CheckCircle sx={{ color: "#4caf50", fontSize: 16, mr: 0.5 }} />
+                      <Typography sx={{ color: "#666", fontSize: "0.75rem" }}>Excellent response rate</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
+
+              {/* Charts Row */}
+              <Box sx={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 3, mb: 3 }}>
+                {/* SOS Response Trends */}
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                      <Assessment sx={{ color: "#1e3a5f" }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e3a5f" }}>SOS Response Trends</Typography>
+                    </Box>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 2 }}>Weekly overview of alerts and resolutions</Typography>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <BarChart data={sosChartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <RechartsTooltip />
+                        <Legend />
+                        <Bar dataKey="Alerts" fill="#f44336" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Resolved" fill="#4caf50" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* User Distribution */}
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                      <People sx={{ color: "#1e3a5f" }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e3a5f" }}>User Distribution</Typography>
+                    </Box>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 2 }}>Platform user breakdown</Typography>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={userDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={({ name, value }) => `${name} ${value}%`}
+                        >
+                          {userDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </Box>
+
+              {/* Pending Volunteer Approvals */}
+              <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", mb: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <VolunteerActivism sx={{ color: "#4caf50" }} />
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e3a5f" }}>Pending Volunteer Approvals</Typography>
+                      </Box>
+                      <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Review and approve new volunteers</Typography>
+                    </Box>
+                    <Chip label={`${volunteers.filter(v => v.status === "pending").length} pending`} size="small" sx={{ backgroundColor: "#fff3e0", color: "#ff9800" }} />
+                  </Box>
+                  
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: "#f5f7fa" }}>
+                          <TableCell sx={{ fontWeight: 600 }}>Volunteer</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Applied Date</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {volunteers.filter(v => v.status === "pending").map((volunteer) => (
+                          <TableRow key={volunteer.id} sx={{ "&:hover": { backgroundColor: "#f5f7fa" } }}>
+                            <TableCell>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                <Avatar sx={{ bgcolor: "#e3f2fd", color: "#1976d2", width: 36, height: 36 }}>
+                                  {volunteer.name.split(" ").map(n => n[0]).join("")}
+                                </Avatar>
+                                <Typography sx={{ fontWeight: 500 }}>{volunteer.name}</Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ color: "#666" }}>{volunteer.email}</TableCell>
+                            <TableCell sx={{ color: "#666" }}>{volunteer.appliedDate}</TableCell>
+                            <TableCell>{getStatusChip(volunteer.status)}</TableCell>
+                            <TableCell>
+                              <Box sx={{ display: "flex", gap: 1 }}>
+                                <Button 
+                                  size="small" 
+                                  variant="outlined"
+                                  onClick={() => handleViewVolunteer(volunteer)}
+                                  sx={{ textTransform: "none", borderRadius: 2 }}
+                                >
+                                  Review
+                                </Button>
+                                <Button 
+                                  size="small" 
+                                  variant="contained" 
+                                  color="success"
+                                  startIcon={<Check />}
+                                  onClick={() => handleApproveVolunteer(volunteer.id)}
+                                  sx={{ textTransform: "none", borderRadius: 2 }}
+                                >
+                                  Approve
+                                </Button>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </CardContent>
+              </Card>
+
+              {/* Recent SOS Alerts */}
+              <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                    <Warning sx={{ color: "#f44336" }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e3a5f" }}>Recent SOS Alerts</Typography>
+                  </Box>
+                  <Typography sx={{ color: "#666", fontSize: "0.85rem", mb: 2 }}>Latest emergency responses</Typography>
+                  
+                  {sosAlerts.map((alert) => (
+                    <Box 
+                      key={alert.id} 
+                      sx={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center",
+                        p: 2,
+                        mb: 1.5,
+                        backgroundColor: "#fff",
+                        borderRadius: 2,
+                        border: "1px solid #e0e0e0",
+                        "&:hover": { backgroundColor: "#f5f7fa" }
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Avatar sx={{ bgcolor: alert.status === "resolved" ? "#e8f5e9" : "#e3f2fd", color: alert.status === "resolved" ? "#4caf50" : "#2196f3" }}>
+                          {alert.elder.split(" ").map(n => n[0]).join("")}
+                        </Avatar>
+                        <Box>
+                          <Typography sx={{ fontWeight: 600 }}>{alert.elder}</Typography>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                            <LocationOn sx={{ fontSize: 14, color: "#999" }} />
+                            <Typography sx={{ color: "#666", fontSize: "0.8rem" }}>{alert.address}</Typography>
+                          </Box>
+                          <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>{alert.time}</Typography>
+                        </Box>
+                      </Box>
+                      {getStatusChip(alert.status)}
+                    </Box>
+                  ))}
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {/* USERS SECTION */}
+          {activeNav === "users" && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e3a5f" }}>Users Management</Typography>
+                  <Typography sx={{ color: "#666" }}>Manage all platform users</Typography>
+                </Box>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button variant="outlined" startIcon={<Refresh />} onClick={handleRefresh} sx={{ borderRadius: 2, textTransform: "none" }}>Refresh</Button>
+                  <Button variant="outlined" startIcon={<FilterList />} sx={{ borderRadius: 2, textTransform: "none" }}>Filter</Button>
+                  <Button variant="contained" startIcon={<Add />} onClick={() => setAddUserDialog(true)} sx={{ borderRadius: 2, textTransform: "none" }}>Add User</Button>
+                </Box>
+              </Box>
+
+              <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: "#f5f7fa" }}>
+                        <TableCell sx={{ fontWeight: 600 }}>User</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Join Date</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users.map((user) => (
+                        <TableRow key={user.id} sx={{ "&:hover": { backgroundColor: "#f5f7fa" } }}>
+                          <TableCell>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                              <Avatar sx={{ bgcolor: "#7c4dff", width: 36, height: 36 }}>
+                                {user.name.split(" ").map(n => n[0]).join("")}
+                              </Avatar>
+                              <Typography sx={{ fontWeight: 500 }}>{user.name}</Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: "#666" }}>{user.email}</TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
+                              size="small" 
+                              sx={{ 
+                                backgroundColor: user.role === "elder" ? "#e8f5e9" : user.role === "family" ? "#f3e5f5" : "#e3f2fd",
+                                color: user.role === "elder" ? "#4caf50" : user.role === "family" ? "#9c27b0" : "#2196f3"
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ color: "#666" }}>{user.phone}</TableCell>
+                          <TableCell sx={{ color: "#666" }}>{user.joinDate}</TableCell>
+                          <TableCell>{getStatusChip(user.status)}</TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <IconButton size="small" onClick={() => handleViewUser(user)}><Visibility fontSize="small" /></IconButton>
+                              <IconButton size="small" onClick={() => handleEditUser(user)}><Edit fontSize="small" /></IconButton>
+                              <IconButton size="small" onClick={() => handleDeleteUser(user.id)} sx={{ color: "#f44336" }}><Delete fontSize="small" /></IconButton>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </>
+          )}
 
           {/* VOLUNTEERS SECTION */}
           {activeNav === "volunteers" && (
@@ -516,212 +857,224 @@ export default function AdminDashboard() {
             </>
           )}
 
-  const renderReports = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>Reports</Typography>
-          <Button startIcon={<Add />} variant="contained">Generate Report</Button>
-        </Box>
-        <Grid container spacing={3}>
-          {reports.map((report) => (
-            <Grid item xs={12} md={6} key={report.id}>
-              <Card variant="outlined" sx={{ ...cardHoverSx, p: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Avatar sx={{ bgcolor: "#e3f2fd" }}><Report color="primary" /></Avatar>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="h6">{report.title}</Typography>
-                    <Typography color="text.secondary" variant="body2">{report.date}</Typography>
-                  </Box>
-                  <Box>
-                    <Button size="small" variant="outlined" sx={{ mr: 1 }}>View</Button>
-                    <Button size="small" variant="contained">Download</Button>
-                  </Box>
+          {/* SOS ALERTS SECTION */}
+          {activeNav === "sosAlerts" && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e3a5f" }}>SOS Alerts</Typography>
+                  <Typography sx={{ color: "#666" }}>Monitor and respond to emergency alerts</Typography>
                 </Box>
+                <Button variant="contained" color="error" startIcon={<Refresh />} sx={{ borderRadius: 2, textTransform: "none" }}>Refresh Alerts</Button>
+              </Box>
+
+              {/* Alert Stats */}
+              <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 3, mb: 3 }}>
+                <Card sx={{ borderRadius: 3, borderLeft: "4px solid #f44336" }}>
+                  <CardContent sx={{ py: 2 }}>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Active Alerts</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: "#f44336" }}>{sosAlerts.filter(a => a.status !== "resolved").length}</Typography>
+                  </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 3, borderLeft: "4px solid #2196f3" }}>
+                  <CardContent sx={{ py: 2 }}>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Responded</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: "#2196f3" }}>{sosAlerts.filter(a => a.status === "responded").length}</Typography>
+                  </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 3, borderLeft: "4px solid #4caf50" }}>
+                  <CardContent sx={{ py: 2 }}>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Resolved</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: "#4caf50" }}>{sosAlerts.filter(a => a.status === "resolved").length}</Typography>
+                  </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 3, borderLeft: "4px solid #9c27b0" }}>
+                  <CardContent sx={{ py: 2 }}>
+                    <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Avg Response</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, color: "#9c27b0" }}>{stats.avgResponseTime}m</Typography>
+                  </CardContent>
+                </Card>
+              </Box>
+
+              <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: "#f5f7fa" }}>
+                        <TableCell sx={{ fontWeight: 600 }}>Elder</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Location</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Time</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Responder</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {sosAlerts.map((alert) => (
+                        <TableRow key={alert.id} sx={{ "&:hover": { backgroundColor: "#f5f7fa" } }}>
+                          <TableCell>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                              <Avatar sx={{ bgcolor: "#ffebee", color: "#f44336", width: 36, height: 36 }}>
+                                {alert.elder.split(" ").map(n => n[0]).join("")}
+                              </Avatar>
+                              <Typography sx={{ fontWeight: 500 }}>{alert.elder}</Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                              <LocationOn sx={{ fontSize: 16, color: "#999" }} />
+                              <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>{alert.address}</Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ color: "#666" }}>{alert.time}</TableCell>
+                          <TableCell sx={{ color: "#666" }}>{alert.responder || "-"}</TableCell>
+                          <TableCell>{getStatusChip(alert.status)}</TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Button 
+                                size="small" 
+                                variant="outlined"
+                                onClick={() => handleViewAlert(alert)}
+                                sx={{ textTransform: "none", borderRadius: 2 }}
+                              >
+                                Details
+                              </Button>
+                              {alert.status !== "resolved" && (
+                                <Button 
+                                  size="small" 
+                                  variant="contained" 
+                                  color="success"
+                                  onClick={() => handleResolveAlert(alert.id)}
+                                  sx={{ textTransform: "none", borderRadius: 2 }}
+                                >
+                                  Resolve
+                                </Button>
+                              )}
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </Card>
-  );
+            </>
+          )}
 
-  const renderAnalytics = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>Analytics Dashboard</Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <BarChart sx={{ fontSize: 60, color: "#1976d2" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>User Growth</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#1976d2" }}>+24%</Typography>
-              <Typography color="text.secondary">This month</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <Favorite sx={{ fontSize: 60, color: "#e91e63" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Health Compliance</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#4caf50" }}>92%</Typography>
-              <Typography color="text.secondary">Average across elders</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <AccessTime sx={{ fontSize: 60, color: "#ff9800" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Avg Response Time</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#ff9800" }}>2.4m</Typography>
-              <Typography color="text.secondary">Emergency alerts</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, textAlign: "center", ...cardHoverSx }}>
-              <People sx={{ fontSize: 60, color: "#9c27b0" }} />
-              <Typography variant="h6" sx={{ mt: 2 }}>Active Users</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: "#9c27b0" }}>668</Typography>
-              <Typography color="text.secondary">Currently online</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-
-  const renderSettings = () => (
-    <Card sx={cardHoverSx}>
-      <CardContent>
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>System Settings</Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Notification Settings</Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography>Push Notifications</Typography>
-                  <Switch checked={settings.notifications} onChange={(e) => setSettings({ ...settings, notifications: e.target.checked })} />
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography>Email Alerts</Typography>
-                  <Switch checked={settings.emailAlerts} onChange={(e) => setSettings({ ...settings, emailAlerts: e.target.checked })} />
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography>SMS Alerts</Typography>
-                  <Switch checked={settings.smsAlerts} onChange={(e) => setSettings({ ...settings, smsAlerts: e.target.checked })} />
-                </Box>
+          {/* REPORTS SECTION */}
+          {activeNav === "reports" && (
+            <>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e3a5f" }}>Reports & Analytics</Typography>
+                <Typography sx={{ color: "#666" }}>View system reports and analytics</Typography>
               </Box>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>System Settings</Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography>Auto Backup</Typography>
-                  <Switch checked={settings.autoBackup} onChange={(e) => setSettings({ ...settings, autoBackup: e.target.checked })} />
-                </Box>
-                <Button variant="outlined" startIcon={<Refresh />} fullWidth>Refresh System Cache</Button>
-                <Button variant="contained" startIcon={<Save />} fullWidth onClick={() => setSnackbar({ open: true, message: "Settings saved!", severity: "success" })}>
-                  Save All Settings
-                </Button>
+
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, mb: 3 }}>
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Weekly SOS Trends</Typography>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={sosChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <RechartsTooltip />
+                        <Legend />
+                        <Bar dataKey="Alerts" fill="#f44336" />
+                        <Bar dataKey="Resolved" fill="#4caf50" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>User Distribution</Typography>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={userDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={2}
+                          dataKey="value"
+                          label={({ name, value }) => `${name}: ${value}%`}
+                        >
+                          {userDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
               </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
-  );
 
-  return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 260, backgroundColor: "#1a237e", color: "white", p: 2, display: "flex", flexDirection: "column" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 4 }}>
-          <LocalHospital sx={{ fontSize: 32 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare Admin</Typography>
-        </Box>
-
-        <List>
-          {sidebarItems.map((item) => (
-            <ListItem
-              key={item.key}
-              onClick={() => setActiveTab(item.key)}
-              sx={{
-                borderRadius: 2,
-                mb: 1,
-                backgroundColor: activeTab === item.key ? "rgba(255,255,255,0.2)" : "transparent",
-                cursor: "pointer",
-                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-              }}
-            >
-              <ListItemAvatar sx={{ minWidth: 40 }}>{item.icon}</ListItemAvatar>
-              <ListItemText primary={item.label} />
-            </ListItem>
-          ))}
-        </List>
-
-        <Box sx={{ mt: "auto" }}>
-          <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 2 }} />
-          <Button fullWidth startIcon={<Logout />} onClick={handleLogout} sx={{ color: "white", justifyContent: "flex-start" }}>
-            Logout
-          </Button>
+              {/* Quick Reports */}
+              <Card sx={{ borderRadius: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Generate Reports</Typography>
+                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+                    <Button variant="outlined" startIcon={<Assessment />} onClick={() => handleGenerateReport("User Activity")} sx={{ p: 2, borderRadius: 2, textTransform: "none", flexDirection: "column", gap: 1, "&:hover": { transform: "scale(1.05)", boxShadow: 2 }, transition: "all 0.2s" }}>
+                      <Typography>User Activity</Typography>
+                    </Button>
+                    <Button variant="outlined" startIcon={<Warning />} onClick={() => handleGenerateReport("SOS Summary")} sx={{ p: 2, borderRadius: 2, textTransform: "none", flexDirection: "column", gap: 1, "&:hover": { transform: "scale(1.05)", boxShadow: 2 }, transition: "all 0.2s" }}>
+                      <Typography>SOS Summary</Typography>
+                    </Button>
+                    <Button variant="outlined" startIcon={<VolunteerActivism />} onClick={() => handleGenerateReport("Volunteer Hours")} sx={{ p: 2, borderRadius: 2, textTransform: "none", flexDirection: "column", gap: 1, "&:hover": { transform: "scale(1.05)", boxShadow: 2 }, transition: "all 0.2s" }}>
+                      <Typography>Volunteer Hours</Typography>
+                    </Button>
+                    <Button variant="outlined" startIcon={<People />} onClick={() => handleGenerateReport("Registration")} sx={{ p: 2, borderRadius: 2, textTransform: "none", flexDirection: "column", gap: 1, "&:hover": { transform: "scale(1.05)", boxShadow: 2 }, transition: "all 0.2s" }}>
+                      <Typography>Registration</Typography>
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </Box>
       </Box>
 
-      {/* Main Content */}
-      <Box sx={{ flex: 1, p: 3 }}>
-        {/* Header */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: "#1a237e" }}>
-              {sidebarItems.find((i) => i.key === activeTab)?.label || "Dashboard"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">Welcome back, Administrator</Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <IconButton onClick={() => setSnackbar({ open: true, message: "Notifications refreshed!", severity: "info" })}>
-              <Badge badgeContent={emergencyAlerts.filter((a) => a.status === "active").length} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-            <Avatar sx={{ bgcolor: "#1a237e", cursor: "pointer" }} onClick={() => setActiveTab("settings")}>A</Avatar>
-          </Box>
-        </Box>
-
-        {renderContent()}
-      </Box>
-
-      {/* Add User Dialog */}
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
+      {/* User View Dialog */}
+      <Dialog open={openUserDialog} onClose={() => setOpenUserDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ borderBottom: "1px solid #e0e0e0" }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            Add New User
-            <IconButton onClick={() => setOpenAddDialog(false)}><Close /></IconButton>
+            <Typography variant="h6">User Details</Typography>
+            <IconButton onClick={() => setOpenUserDialog(false)}><Close /></IconButton>
           </Box>
         </DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField fullWidth label="Full Name" value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} required />
-            <TextField fullWidth label="Email" type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} required />
-            <TextField fullWidth label="Phone" value={newUser.phone} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} />
-            <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
-              <Select value={newUser.role} label="Role" onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
-                <MenuItem value="elder">Elder</MenuItem>
-                <MenuItem value="familyMember">Family Member</MenuItem>
-                <MenuItem value="caregiver">Caregiver/Volunteer</MenuItem>
-                <MenuItem value="admin">Administrator</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select value={newUser.status} label="Status" onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}>
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+        <DialogContent sx={{ p: 3 }}>
+          {selectedItem && (
+            <Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                <Avatar sx={{ width: 64, height: 64, bgcolor: "#7c4dff", fontSize: "1.5rem" }}>
+                  {selectedItem.name?.split(" ").map(n => n[0]).join("") || "?"}
+                </Avatar>
+                <Box>
+                  <Typography variant="h6">{selectedItem.name}</Typography>
+                  <Chip label={selectedItem.role} size="small" />
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Email sx={{ color: "#666" }} />
+                  <Typography>{selectedItem.email}</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Phone sx={{ color: "#666" }} />
+                  <Typography>{selectedItem.phone}</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <AccessTime sx={{ color: "#666" }} />
+                  <Typography>Joined: {selectedItem.joinDate}</Typography>
+                </Box>
+              </Box>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenUserDialog(false)}>Close</Button>
@@ -742,7 +1095,7 @@ export default function AdminDashboard() {
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Avatar sx={{ width: 64, height: 64, bgcolor: "#2196f3", fontSize: "1.5rem" }}>
-                  {selectedItem.name.split(" ").map(n => n[0]).join("")}
+                  {selectedItem.name?.split(" ").map(n => n[0]).join("") || "?"}
                 </Avatar>
                 <Box>
                   <Typography variant="h6">{selectedItem.name}</Typography>
@@ -797,7 +1150,7 @@ export default function AdminDashboard() {
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Avatar sx={{ width: 64, height: 64, bgcolor: "#f44336", fontSize: "1.5rem" }}>
-                  {selectedItem.elder.split(" ").map(n => n[0]).join("")}
+                  {selectedItem.elder?.split(" ").map(n => n[0]).join("") || "?"}
                 </Avatar>
                 <Box>
                   <Typography variant="h6">{selectedItem.elder}</Typography>
