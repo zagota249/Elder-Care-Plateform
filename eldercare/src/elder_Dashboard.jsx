@@ -48,15 +48,6 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-// Sidebar navigation items
-const sidebarItems = [
-  { id: "home", label: "Home", icon: <HomeIcon /> },
-  { id: "medicines", label: "Medicines", icon: <Medication /> },
-  { id: "tasks", label: "Tasks", icon: <CalendarToday /> },
-  { id: "messages", label: "Messages", icon: <Message /> },
-  { id: "profile", label: "Profile", icon: <Person /> },
-];
-
 export default function Home() {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("home");
@@ -283,10 +274,6 @@ export default function Home() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/signin");
-  };
-
-  const handleNavClick = (id) => {
-    setActiveNav(id);
   };
 
   // Render content based on active navigation
