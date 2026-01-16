@@ -242,38 +242,35 @@ export default function AdminDashboard() {
     const config = statusConfig[status] || statusConfig.inactive;
     return (
       <Chip 
+        label={config.label} 
+        size="small" 
+        sx={{ 
+          backgroundColor: config.bg, 
+          color: config.color,
+          fontWeight: 600,
+          fontSize: "0.75rem"
+        }} 
+      />
+    );
+  };
+
   return (
-    <>
-      <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
-        ...existing content...
-      </Box>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+    <Box sx={{ width: "100%", p: 0, overflow: "auto" }}>
+      {/* Header */}
+      <Box
+        sx={{
+          backgroundColor: "white",
+          px: 3,
+          py: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #e0e0e0",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+        }}
       >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-      {/* ...all other dialogs and modals here... */}
-    </>
-  );
-        <Box
-          sx={{
-            backgroundColor: "white",
-            px: 3,
-            py: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #e0e0e0",
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-          }}
-        >
           <TextField
             placeholder="Search..."
             size="small"
