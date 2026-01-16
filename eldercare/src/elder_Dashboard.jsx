@@ -725,55 +725,9 @@ export default function Home() {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#e8f4fc" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 220, background: "linear-gradient(180deg, #1a1f4e 0%, #2d3a8c 100%)", color: "white", display: "flex", flexDirection: "column", p: 2 }}>
-        {/* Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #00bcd4 0%, #4caf50 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Favorite sx={{ color: "white", fontSize: 20 }} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>ElderCare</Typography>
-            <Typography sx={{ fontSize: "0.65rem", opacity: 0.7 }}>Support & Companion</Typography>
-          </Box>
-        </Box>
-
-        {/* User Profile */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3, p: 1.5, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.1)" }}>
-          <Avatar sx={{ bgcolor: "#7c4dff", width: 40, height: 40 }}>{userName.charAt(0)}</Avatar>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>{userName} Thompson</Typography>
-            <Typography sx={{ fontSize: "0.7rem", opacity: 0.7 }}>Elder</Typography>
-          </Box>
-        </Box>
-
-        {/* Navigation */}
-        <Box sx={{ flex: 1 }}>
-          {sidebarItems.map((item) => (
-            <Box
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              sx={{
-                display: "flex", alignItems: "center", gap: 1.5, p: 1.5, borderRadius: 2, cursor: "pointer", mb: 0.5,
-                backgroundColor: activeNav === item.id ? "#00bcd4" : "transparent",
-                transition: "all 0.2s ease",
-                "&:hover": { backgroundColor: activeNav === item.id ? "#00bcd4" : "rgba(255,255,255,0.1)" },
-              }}
-            >
-              {item.icon}
-              <Typography sx={{ fontSize: "0.9rem" }}>{item.label}</Typography>
-            </Box>
-          ))}
-        </Box>
-
-        <Button variant="outlined" onClick={handleLogout} sx={{ color: "white", borderColor: "rgba(255,255,255,0.3)", mt: 2, "&:hover": { borderColor: "white", backgroundColor: "rgba(255,255,255,0.1)" } }}>
-          Logout
-        </Button>
-      </Box>
-
+    <>
       {/* Main Content */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "100%" }}>
         {/* Top Bar */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "white", borderBottom: "1px solid #e0e0e0" }}>
           <TextField
@@ -1025,6 +979,6 @@ export default function Home() {
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
