@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import {
-  Box, Typography, Card, CardContent, Grid, Avatar, Button, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Chip,
+  Box, Typography, Card, CardContent, Grid, Avatar, Button, LinearProgress, List, ListItem, ListItemIcon, ListItemText, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton,
 } from "@mui/material";
 import {
-  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, Settings, Logout, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete,
+  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function FamilyDashboard() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -53,21 +54,6 @@ export default function FamilyDashboard() {
   const [newTask, setNewTask] = useState({ title: "", description: "", priority: "medium" });
   const [composeDialog, setComposeDialog] = useState(false);
   const [replyDialog, setReplyDialog] = useState({ open: false, message: null, reply: "" });
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/signin");
-  };
-
-  const menuItems = [
-    { icon: <DashboardIcon />, label: "Dashboard" },
-    { icon: <People />, label: "My Elders" },
-    { icon: <Medication />, label: "Medicines" },
-    { icon: <Task />, label: "Tasks" },
-    { icon: <Message />, label: "Messages" },
-    { icon: <Notifications />, label: "Notifications" },
-  ];
 
   // Handlers
   const handleAddElder = () => {
@@ -151,8 +137,6 @@ export default function FamilyDashboard() {
       setReplyDialog({ open: false, message: null, reply: "" });
     }
   };
-
-  const handleSettings = () => setSettingsDialog(true);
 
   const handleDeleteElder = (elderId) => {
     setElders(prev => prev.filter(e => e.id !== elderId));
