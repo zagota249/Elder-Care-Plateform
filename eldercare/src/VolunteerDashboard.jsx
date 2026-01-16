@@ -9,10 +9,7 @@ import {
   Button,
   List,
   ListItem,
-  ListItemButton,
-  ListItemIcon,
   ListItemText,
-  Divider,
   Chip,
   Rating,
   Dialog,
@@ -25,12 +22,10 @@ import {
   IconButton,
 } from "@mui/material";
 import {
-  Dashboard as DashboardIcon,
+  DashboardIcon,
   HelpOutline,
   Message,
   Person,
-  Settings,
-  Logout,
   Phone,
   CheckCircle,
   Star,
@@ -47,6 +42,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function VolunteerDashboard() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -111,19 +107,6 @@ export default function VolunteerDashboard() {
     rating: 4.8,
     avgResponse: "5 min",
   });
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/signin");
-  };
-
-  const menuItems = [
-    { icon: <DashboardIcon />, label: "Dashboard" },
-    { icon: <HelpOutline />, label: "Help Requests" },
-    { icon: <Message />, label: "Messages" },
-    { icon: <Person />, label: "Profile" },
-  ];
 
   // Handler Functions
   const handleCall = (elder) => {
@@ -219,10 +202,6 @@ export default function VolunteerDashboard() {
   const handleCancelEdit = () => {
     setTempProfile({ ...profileData });
     setEditingProfile(false);
-  };
-
-  const handleSettings = () => {
-    setSettingsDialog(true);
   };
 
   return (
