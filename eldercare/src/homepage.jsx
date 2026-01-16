@@ -32,7 +32,7 @@ export default function HomePage() {
                     </p>
                     <div className="hero-buttons">
                         <button className="btn primary glow" onClick={() => navigate('/signup')}>Get Started</button>
-                        <button className="btn secondary">Learn More</button>
+                        <button className="btn secondary" onClick={() => document.querySelector('.audience').scrollIntoView({ behavior: 'smooth' })}>Learn More</button>
                     </div>
                 </div>
             </section>
@@ -139,9 +139,9 @@ export default function HomePage() {
                 <div className="footer-content">
                     <p>© 2026 ElderCare Connect. All rights reserved.</p>
                     <div className="footer-links">
-                        <a href="#">Privacy Policy</a>
+                        <button onClick={() => alert("Privacy Policy page coming soon!")}>Privacy Policy</button>
                         <span className="divider">|</span>
-                        <a href="#">Terms of Service</a>
+                        <button onClick={() => alert("Terms of Service page coming soon!")}>Terms of Service</button>
                     </div>
                 </div>
             </footer>
