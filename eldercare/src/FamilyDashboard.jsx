@@ -161,60 +161,8 @@ export default function FamilyDashboard() {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 260, backgroundColor: "#1a1a2e", color: "white", display: "flex", flexDirection: "column", p: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3, p: 1 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", mr: 2 }}>
-            <CheckCircle sx={{ color: "white" }} />
-          </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>ElderCare</Typography>
-            <Typography variant="caption" sx={{ color: "#9ca3af" }}>Family Portal</Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 2, p: 2, mb: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Avatar sx={{ bgcolor: "#3b82f6", mr: 2 }}>ST</Avatar>
-            <Box>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>Sarah Thompson</Typography>
-              <Typography variant="caption" sx={{ color: "#9ca3af" }}>Family Member</Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        <List sx={{ flexGrow: 1 }}>
-          {menuItems.map((item, index) => (
-            <ListItem key={index} disablePadding>
-              <ListItemButton onClick={() => setActiveMenu(item.label)} sx={{ borderRadius: 2, mb: 0.5, backgroundColor: activeMenu === item.label ? "rgba(59, 130, 246, 0.2)" : "transparent", "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)", transform: "translateX(5px)" }, transition: "all 0.2s" }}>
-                <ListItemIcon sx={{ color: activeMenu === item.label ? "#3b82f6" : "white", minWidth: 40 }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} sx={{ color: activeMenu === item.label ? "#3b82f6" : "white" }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-
-        <Divider sx={{ backgroundColor: "rgba(255,255,255,0.1)", my: 1 }} />
-
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleSettings} sx={{ borderRadius: 2, mb: 0.5, "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.1)" } }}>
-              <ListItemIcon sx={{ color: "white", minWidth: 40 }}><Settings /></ListItemIcon>
-              <ListItemText primary="Settings" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2, color: "#ef4444", "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" } }}>
-              <ListItemIcon sx={{ color: "#ef4444", minWidth: 40 }}><Logout /></ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-
-      {/* Main Content */}
-      <Box sx={{ flexGrow: 1, p: 3, overflow: "auto" }}>
+    <>
+    <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
             {activeMenu === "Dashboard" ? "Family Dashboard" : activeMenu}
@@ -434,7 +382,12 @@ export default function FamilyDashboard() {
 
       {/* Add Elder Dialog */}
       <Dialog open={addElderDialog} onClose={() => setAddElderDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle><Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>Add New Elder<IconButton onClick={() => setAddElderDialog(false)}><Close /></IconButton></Box></DialogTitle>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            Add New Elder
+            <IconButton onClick={() => setAddElderDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
         <DialogContent>
           <Box sx={{ py: 2 }}>
             <TextField fullWidth label="Full Name" value={newElder.name} onChange={(e) => setNewElder({ ...newElder, name: e.target.value })} sx={{ mb: 2 }} />
@@ -622,6 +575,6 @@ export default function FamilyDashboard() {
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
