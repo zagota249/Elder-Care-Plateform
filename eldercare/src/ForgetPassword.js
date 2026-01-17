@@ -31,7 +31,11 @@ export default function ForgotPassword() {
         setTimeout(() => navigate(`/reset-password?token=${res.data.resetToken}`), 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred. Please try again.");
+      if (err.code === 'ERR_NETWORK') {
+        setError("Cannot connect to server. Please ensure the backend server is running.");
+      } else {
+        setError(err.response?.data?.message || "An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

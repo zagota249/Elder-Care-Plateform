@@ -22,7 +22,7 @@ import {
   IconButton,
 } from "@mui/material";
 import {
-  DashboardIcon,
+  Dashboard as DashboardIcon,
   HelpOutline,
   Message,
   Person,

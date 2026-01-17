@@ -62,7 +62,13 @@ export default function ResetPassword() {
       // Redirect to sign in after success
       setTimeout(() => navigate("/signin"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Error occurred. Please try again.");
+      if (err.code === 'ERR_NETWORK') {
+        setError("Cannot connect to server. Please ensure the backend server is running.");
+      } else if (err.response?.status === 400) {
+        setError(err.response?.data?.message || "Invalid or expired reset token. Please request a new reset link.");
+      } else {
+        setError(err.response?.data?.message || "Error resetting password. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
