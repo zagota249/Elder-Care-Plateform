@@ -1,18 +1,90 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Card, CardContent, Grid, Avatar, Button, LinearProgress, List, ListItem, ListItemIcon, ListItemText, Chip,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Menu, MenuItem, Divider,
 } from "@mui/material";
 import {
-  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete,
+  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete, Person, Settings, Logout,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function FamilyDashboard() {
   const navigate = useNavigate();
-  // eslint-disable-next-line no-unused-vars
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
+  // User profile state
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || '{"name": "Family Member", "email": "family@example.com"}');
+    } catch {
+      return { name: "Family Member", email: "family@example.com" };
+    }
+  });
+
+  // Profile menu anchor
+  const [profileAnchor, setProfileAnchor] = useState(null);
+  const [profileDialog, setProfileDialog] = useState(false);
+  const [editProfile, setEditProfile] = useState({ name: user.name, email: user.email, phone: "" });
+
+  // Listen for sidebar navigation events
+  useEffect(() => {
+    const handleSidebarNav = (e) => {
+      const menuMap = {
+        home: "Dashboard",
+        profile: "Profile",
+        tasks: "Tasks",
+        medications: "Medicines",
+        emergency: "Emergency",
+        settings: "Settings",
+      };
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveMenu(menuMap[e.detail.id]);
+        }
+      }
+    };
+    window.addEventListener("sidebarNav", handleSidebarNav);
+    return () => window.removeEventListener("sidebarNav", handleSidebarNav);
+  }, []);
+
+  // Profile handlers
+  const handleProfileClick = (event) => {
+    setProfileAnchor(event.currentTarget);
+  };
+
+  const handleProfileClose = () => {
+    setProfileAnchor(null);
+  };
+
+  const handleOpenProfile = () => {
+    setProfileAnchor(null);
+    setEditProfile({ name: user.name, email: user.email, phone: user.phone || "" });
+    setProfileDialog(true);
+  };
+
+  const handleOpenSettings = () => {
+    setProfileAnchor(null);
+    setSettingsDialog(true);
+  };
+
+  const handleSaveProfile = () => {
+    const updatedUser = { ...user, ...editProfile };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setProfileDialog(false);
+    setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   // Elders State
   const [elders, setElders] = useState([
@@ -27,14 +99,12 @@ export default function FamilyDashboard() {
   ]);
 
   // Messages State
-  // eslint-disable-next-line no-unused-vars
   const [conversations, setConversations] = useState([
     { id: 1, from: "Caregiver John", avatar: "C", color: "#1976d2", message: "Margaret is doing well today.", time: "2 hours ago", unread: true },
     { id: 2, from: "Dr. Smith", avatar: "D", color: "#4caf50", message: "Prescription updated.", time: "Yesterday", unread: false },
   ]);
 
   // Notifications State
-  // eslint-disable-next-line no-unused-vars
   const [notificationsList, setNotificationsList] = useState([
     { id: 1, type: "medicine", message: "Margaret took her morning medication", time: "1 hour ago", icon: <CheckCircle sx={{ color: "#4caf50" }} /> },
     { id: 2, type: "appointment", message: "Doctor visit scheduled for tomorrow", time: "3 hours ago", icon: <CalendarToday sx={{ color: "#f59e0b" }} /> },
@@ -147,18 +217,51 @@ export default function FamilyDashboard() {
   return (
     <>
     <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
-            {activeMenu === "Dashboard" ? "Family Dashboard" : activeMenu}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {activeMenu === "Dashboard" && "Manage care for your loved ones"}
-            {activeMenu === "My Elders" && "View and manage your elder family members"}
-            {activeMenu === "Medicines" && "Track medication schedules"}
-            {activeMenu === "Tasks" && "View and manage care tasks"}
-            {activeMenu === "Messages" && "Communicate with caregivers"}
-            {activeMenu === "Notifications" && "View alerts and notifications"}
-          </Typography>
+        {/* Header with Profile */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
+              {activeMenu === "Dashboard" ? "Family Dashboard" : activeMenu}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {activeMenu === "Dashboard" && "Manage care for your loved ones"}
+              {activeMenu === "My Elders" && "View and manage your elder family members"}
+              {activeMenu === "Medicines" && "Track medication schedules"}
+              {activeMenu === "Tasks" && "View and manage care tasks"}
+              {activeMenu === "Messages" && "Communicate with caregivers"}
+              {activeMenu === "Notifications" && "View alerts and notifications"}
+              {activeMenu === "Emergency" && "Emergency contacts and SOS"}
+            </Typography>
+          </Box>
+          <Box>
+            <IconButton onClick={handleProfileClick}>
+              <Avatar sx={{ bgcolor: "#1976d2", cursor: "pointer" }}>
+                {user.name?.charAt(0)?.toUpperCase() || "F"}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={profileAnchor}
+              open={Boolean(profileAnchor)}
+              onClose={handleProfileClose}
+              PaperProps={{ sx: { width: 200, mt: 1 } }}
+            >
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{user.name}</Typography>
+                <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+              </Box>
+              <Divider />
+              <MenuItem onClick={handleOpenProfile}>
+                <Person sx={{ mr: 1 }} /> Profile
+              </MenuItem>
+              <MenuItem onClick={handleOpenSettings}>
+                <Settings sx={{ mr: 1 }} /> Settings
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+                <Logout sx={{ mr: 1 }} /> Logout
+              </MenuItem>
+            </Menu>
+          </Box>
         </Box>
 
         {/* Dashboard Section */}
@@ -552,6 +655,48 @@ export default function FamilyDashboard() {
         <DialogActions>
           <Button onClick={() => setSettingsDialog(false)}>Close</Button>
           <Button variant="contained" onClick={() => { setSettingsDialog(false); setSnackbar({ open: true, message: "Settings saved!", severity: "success" }); }}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Profile Dialog */}
+      <Dialog open={profileDialog} onClose={() => setProfileDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            My Profile
+            <IconButton onClick={() => setProfileDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2, textAlign: "center" }}>
+            <Avatar sx={{ width: 80, height: 80, bgcolor: "#1976d2", mx: "auto", mb: 2, fontSize: "2rem" }}>
+              {user.name?.charAt(0)?.toUpperCase() || "F"}
+            </Avatar>
+            <TextField
+              fullWidth
+              label="Full Name"
+              value={editProfile.name}
+              onChange={(e) => setEditProfile({ ...editProfile, name: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={editProfile.email}
+              onChange={(e) => setEditProfile({ ...editProfile, email: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Phone"
+              value={editProfile.phone}
+              onChange={(e) => setEditProfile({ ...editProfile, phone: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setProfileDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveProfile}>Save Profile</Button>
         </DialogActions>
       </Dialog>
 

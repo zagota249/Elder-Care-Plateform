@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./sidebar";
 import Home from "./elder_Dashboard";
 import HomePage from "./homepage";
@@ -14,31 +14,53 @@ import "./App.css";
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarActive, setSidebarActive] = useState("home");
 
   // Sidebar only visible on dashboard routes
   const showSidebar = ["/home", "/admin", "/family", "/volunteer"].includes(location.pathname);
 
+  // Get user role from localStorage
+  const getUserRole = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user.role || "elder";
+    } catch {
+      return "elder";
+    }
+  };
+
   // Navigation handler for sidebar
   const handleSidebarNav = (id) => {
     setSidebarActive(id);
-    // Map sidebar id to route
-    const routeMap = {
-      home: "/home",
-      profile: "/profile",
-      tasks: "/tasks",
-      medications: "/medications",
-      emergency: "/emergency",
-      settings: "/settings",
-      logout: "/signin",
-      admin: "/admin",
-      family: "/family",
-      volunteer: "/volunteer",
-    };
-    const path = routeMap[id] || "/";
-    if (location.pathname !== path) {
-      window.location.href = path;
+    
+    const userRole = getUserRole();
+    
+    // Handle logout
+    if (id === "logout") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/signin");
+      return;
     }
+
+    // Map role to dashboard path
+    const dashboardMap = {
+      admin: "/admin",
+      caregiver: "/volunteer",
+      familyMember: "/family",
+      elder: "/home",
+    };
+
+    // For home, navigate to role-specific dashboard
+    if (id === "home") {
+      navigate(dashboardMap[userRole] || "/home");
+      return;
+    }
+
+    // For other items, stay on current dashboard but emit event for internal navigation
+    // This will be handled by each dashboard component
+    window.dispatchEvent(new CustomEvent("sidebarNav", { detail: { id } }));
   };
 
   return (
