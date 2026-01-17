@@ -30,11 +30,11 @@ export default function App() {
     }
   };
 
+  const userRole = getUserRole();
+
   // Navigation handler for sidebar
   const handleSidebarNav = (id) => {
     setSidebarActive(id);
-    
-    const userRole = getUserRole();
     
     // Handle logout
     if (id === "logout") {
@@ -66,7 +66,7 @@ export default function App() {
   return (
     <div className="app-shell">
       {showSidebar && (
-        <Sidebar active={sidebarActive} setActive={handleSidebarNav} />
+        <Sidebar active={sidebarActive} setActive={handleSidebarNav} role={userRole} />
       )}
       <div className={`main-content ${showSidebar ? "with-sidebar" : ""}`}>
         <Routes>
