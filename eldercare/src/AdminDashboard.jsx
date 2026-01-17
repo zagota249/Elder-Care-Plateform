@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -21,6 +21,13 @@ import {
   Menu,
   MenuItem,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import {
   Search,
@@ -64,13 +71,75 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
-  const [notifications] = useState([
+  const [notifications, setNotifications] = useState([
     { id: 1, message: "New volunteer registration pending", time: "5 min ago", read: false },
     { id: 2, message: "SOS Alert resolved - Margaret Thompson", time: "1 hour ago", read: false },
     { id: 3, message: "System backup completed", time: "2 hours ago", read: true },
   ]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [notificationAnchor, setNotificationAnchor] = useState(null);
+
+  // User profile state
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || '{"name": "Admin User", "email": "admin@eldercare.com"}');
+    } catch {
+      return { name: "Admin User", email: "admin@eldercare.com" };
+    }
+  });
+  const [profileDialog, setProfileDialog] = useState(false);
+  const [settingsDialog, setSettingsDialog] = useState(false);
+  const [editProfile, setEditProfile] = useState({ name: user.name, email: user.email, phone: "" });
+
+  // Listen for sidebar navigation events
+  useEffect(() => {
+    const handleSidebarNav = (e) => {
+      const menuMap = {
+        home: "dashboard",
+        profile: "profile",
+        tasks: "users",
+        medications: "volunteers",
+        emergency: "sos",
+        settings: "settings",
+      };
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveNav(menuMap[e.detail.id]);
+        }
+      }
+    };
+    window.addEventListener("sidebarNav", handleSidebarNav);
+    return () => window.removeEventListener("sidebarNav", handleSidebarNav);
+  }, []);
+
+  // Profile handlers
+  const handleOpenProfile = () => {
+    setAnchorEl(null);
+    setEditProfile({ name: user.name, email: user.email, phone: user.phone || "" });
+    setProfileDialog(true);
+  };
+
+  const handleOpenSettings = () => {
+    setAnchorEl(null);
+    setSettingsDialog(true);
+  };
+
+  const handleSaveProfile = () => {
+    const updatedUser = { ...user, ...editProfile };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setProfileDialog(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   // Stats Data
   const [stats, setStats] = useState({
@@ -117,9 +186,6 @@ export default function AdminDashboard() {
     { name: "Family", value: 25, color: "#9C27B0" },
     { name: "Volunteers", value: 25, color: "#2196F3" },
   ];
-
-  // eslint-disable-next-line no-unused-vars
-  const [settingsDialog, setSettingsDialog] = useState(false);
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -239,7 +305,7 @@ export default function AdminDashboard() {
               sx={{ bgcolor: "#7c4dff", cursor: "pointer" }}
               onClick={(e) => setAnchorEl(e.currentTarget)}
             >
-              AU
+              {user.name?.charAt(0)?.toUpperCase() || "A"}
             </Avatar>
           </Box>
         </Box>
@@ -269,11 +335,17 @@ export default function AdminDashboard() {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
+          PaperProps={{ sx: { width: 200, mt: 1 } }}
         >
-          <MenuItem onClick={() => { setAnchorEl(null); alert("Profile view coming soon!"); }}><Person sx={{ mr: 1 }} /> Profile</MenuItem>
-          <MenuItem onClick={() => { setAnchorEl(null); alert("Settings coming soon!"); }}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{user.name}</Typography>
+            <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+          </Box>
           <Divider />
-          <MenuItem sx={{ color: "#f44336" }} onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); navigate("/signin"); }}><Logout sx={{ mr: 1 }} /> Logout</MenuItem>
+          <MenuItem onClick={handleOpenProfile}><Person sx={{ mr: 1 }} /> Profile</MenuItem>
+          <MenuItem onClick={handleOpenSettings}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
+          <Divider />
+          <MenuItem sx={{ color: "#f44336" }} onClick={handleLogout}><Logout sx={{ mr: 1 }} /> Logout</MenuItem>
         </Menu>
 
         {/* Content Area */}
@@ -879,6 +951,82 @@ export default function AdminDashboard() {
             </>
           )}
         </Box>
+
+        {/* Profile Dialog */}
+        <Dialog open={profileDialog} onClose={() => setProfileDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              My Profile
+              <IconButton onClick={() => setProfileDialog(false)}><Close /></IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ py: 2, textAlign: "center" }}>
+              <Avatar sx={{ width: 80, height: 80, bgcolor: "#7c4dff", mx: "auto", mb: 2, fontSize: "2rem" }}>
+                {user.name?.charAt(0)?.toUpperCase() || "A"}
+              </Avatar>
+              <TextField
+                fullWidth
+                label="Full Name"
+                value={editProfile.name}
+                onChange={(e) => setEditProfile({ ...editProfile, name: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={editProfile.email}
+                onChange={(e) => setEditProfile({ ...editProfile, email: e.target.value })}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                label="Phone"
+                value={editProfile.phone}
+                onChange={(e) => setEditProfile({ ...editProfile, phone: e.target.value })}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setProfileDialog(false)}>Cancel</Button>
+            <Button variant="contained" onClick={handleSaveProfile}>Save Profile</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Settings Dialog */}
+        <Dialog open={settingsDialog} onClose={() => setSettingsDialog(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              Settings
+              <IconButton onClick={() => setSettingsDialog(false)}><Close /></IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <List>
+              <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+                <ListItemText primary="Email Notifications" secondary="Receive email alerts" />
+                <Chip label="Enabled" color="success" size="small" />
+              </ListItem>
+              <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+                <ListItemText primary="SMS Notifications" secondary="Receive SMS alerts" />
+                <Chip label="Enabled" color="success" size="small" />
+              </ListItem>
+              <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+                <ListItemText primary="Dark Mode" secondary="Toggle dark theme" />
+                <Chip label="Disabled" color="default" size="small" />
+              </ListItem>
+              <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+                <ListItemText primary="Two-Factor Auth" secondary="Extra security" />
+                <Chip label="Enabled" color="success" size="small" />
+              </ListItem>
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setSettingsDialog(false)}>Close</Button>
+            <Button variant="contained" onClick={() => setSettingsDialog(false)}>Save Settings</Button>
+          </DialogActions>
+        </Dialog>
     </Box>
   );
 }
