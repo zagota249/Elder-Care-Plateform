@@ -1,0 +1,99 @@
+===============================================
+ELDERCARE JIRA TASKS - COPY PASTE READY
+===============================================
+
+FIRST: Create 6 Sprints in Jira Backlog
+- Sprint 1 (Auth)
+- Sprint 2 (Dashboards)  
+- Sprint 3 (Backend)
+- Sprint 4 (Health)
+- Sprint 5 (Activities)
+- Sprint 6 (Testing)
+
+THEN: Copy each line below as a new issue
+
+===============================================
+SPRINT 1 (9 tasks)
+===============================================
+[AUTH] Create Sign In Page UI
+[AUTH] Create Sign Up Page UI
+[AUTH] Create Forgot Password Page
+[AUTH] Create Reset Password Page
+[AUTH] Implement User Model
+[AUTH] Implement Auth Controller
+[AUTH] Implement Auth Routes
+[AUTH] Implement JWT Middleware
+[AUTH] Connect Frontend to Auth API
+
+===============================================
+SPRINT 2 (9 tasks)
+===============================================
+[DASH] Create Elder Dashboard Layout
+[DASH] Create Sidebar Navigation
+[DASH] Create Reusable Card Component
+[DASH] Create Family Dashboard Layout
+[DASH] Create Admin Dashboard Layout
+[DASH] Create Volunteer Dashboard Layout
+[DASH] Implement Role-Based Routing
+[DASH] Create Homepage Landing Page
+[DASH] Create About Services Page
+
+===============================================
+SPRINT 3 (8 tasks)
+===============================================
+[API] Implement Elder Model
+[API] Implement Health Metric Model
+[API] Implement Medication Model
+[API] Implement Activity Model
+[API] Implement Event Model
+[API] Create Admin Routes and Controller
+[API] Create Family Routes and Controller
+[API] Create Volunteer Routes and Controller
+
+===============================================
+SPRINT 4 (8 tasks)
+===============================================
+[HEALTH] Create Health Metrics Widget
+[HEALTH] Create Health Data Entry Form
+[HEALTH] Create Health History Charts
+[HEALTH] Implement Health API Endpoints
+[MED] Create Medication List View
+[MED] Create Medication Entry Form
+[MED] Implement Medication API Endpoints
+[MED] Create Medication Reminder System
+
+===============================================
+SPRINT 5 (7 tasks)
+===============================================
+[ACT] Create Activity Calendar View
+[ACT] Create Activity Scheduling Form
+[ACT] Implement Activity API Endpoints
+[EVT] Create Events Listing Page
+[EVT] Create Event Registration Feature
+[EVT] Implement Events API Endpoints
+[NOTIFY] Create Notification System
+
+===============================================
+SPRINT 6 (10 tasks)
+===============================================
+[TEST] Write Unit Tests for Auth Module
+[TEST] Write Unit Tests for API Endpoints
+[TEST] Write Frontend Component Tests
+[TEST] Perform Integration Testing
+[DEPLOY] Configure Docker Containers
+[DEPLOY] Configure Docker Compose
+[DEPLOY] Set Up CI CD Pipeline
+[DEPLOY] Create Production Environment Config
+[DOCS] Create API Documentation
+[DOCS] Create User Guide
+
+===============================================
+TEAM ASSIGNMENTS (Rotate per sprint)
+===============================================
+Bilal Rafiq (24-CS-458)    - Tasks 1, 5, 9 in each sprint
+Talha Tariq (24-CS-363)    - Tasks 2, 6, 10 in each sprint
+Zee Waqar (24-CS-464)      - Tasks 3, 7 in each sprint
+Muhammad Zain (24-CS-486)  - Tasks 4, 8 in each sprint
+
+TOTAL: 51 tasks across 6 sprints
+===============================================
