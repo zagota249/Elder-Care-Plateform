@@ -45,17 +45,10 @@ import {
   Search,
   Notifications,
   AccessTime,
+  Settings,
+  Logout,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-
-// Sidebar navigation items
-const sidebarItems = [
-  { id: "home", label: "Home", icon: <HomeIcon /> },
-  { id: "medicines", label: "Medicines", icon: <Medication /> },
-  { id: "tasks", label: "Tasks", icon: <CalendarToday /> },
-  { id: "messages", label: "Messages", icon: <Message /> },
-  { id: "profile", label: "Profile", icon: <Person /> },
-];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -65,6 +58,19 @@ export default function Home() {
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState(false);
   const [openSOSDialog, setOpenSOSDialog] = useState(false);
   const [userName, setUserName] = useState("Margaret");
+
+  // Profile states
+  const [profileAnchor, setProfileAnchor] = useState(null);
+  const [profileDialog, setProfileDialog] = useState(false);
+  const [settingsDialog, setSettingsDialog] = useState(false);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || '{"name": "Margaret Thompson", "email": "elder@example.com"}');
+    } catch {
+      return { name: "Margaret Thompson", email: "elder@example.com" };
+    }
+  });
+  const [editProfile, setEditProfile] = useState({ name: user.name, email: user.email, phone: "" });
 
   // Voice Assistant States
   const [isListening, setIsListening] = useState(false);
@@ -82,6 +88,70 @@ export default function Home() {
   ]);
 
   const unreadNotifications = notifications.filter(n => !n.read).length;
+
+  // Profile handlers
+  const handleProfileClick = (event) => {
+    setProfileAnchor(event.currentTarget);
+  };
+
+  const handleProfileClose = () => {
+    setProfileAnchor(null);
+  };
+
+  const handleOpenProfile = () => {
+    setProfileAnchor(null);
+    setEditProfile({ name: user.name, email: user.email, phone: user.phone || "" });
+    setProfileDialog(true);
+  };
+
+  const handleOpenSettings = () => {
+    setProfileAnchor(null);
+    setSettingsDialog(true);
+  };
+
+  const handleSaveProfile = () => {
+    const updatedUser = { ...user, ...editProfile };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setProfileDialog(false);
+    setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
+    if (editProfile.name) {
+      setUserName(editProfile.name.split(" ")[0]);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
+
+  // Listen for sidebar navigation events
+  useEffect(() => {
+    const handleSidebarNav = (e) => {
+      const menuMap = {
+        home: "home",
+        profile: "profile",
+        tasks: "tasks",
+        medications: "medicines",
+        emergency: "emergency",
+        settings: "settings",
+      };
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else if (e.detail.id === "emergency") {
+          setOpenSOSDialog(true);
+        } else {
+          setActiveNav(menuMap[e.detail.id]);
+        }
+      }
+    };
+    window.addEventListener("sidebarNav", handleSidebarNav);
+    return () => window.removeEventListener("sidebarNav", handleSidebarNav);
+  }, []);
 
   const handleNotificationClick = (event) => {
     setNotificationAnchor(event.currentTarget);
@@ -278,16 +348,6 @@ export default function Home() {
   const takenCount = medicines.filter(m => m.status === "taken").length;
   const totalMedicines = medicines.length;
   const progressPercent = (takenCount / totalMedicines) * 100;
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/signin");
-  };
-
-  const handleNavClick = (id) => {
-    setActiveNav(id);
-  };
 
   // Render content based on active navigation
   const renderContent = () => {
@@ -725,55 +785,9 @@ export default function Home() {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#e8f4fc" }}>
-      {/* Sidebar */}
-      <Box sx={{ width: 220, background: "linear-gradient(180deg, #1a1f4e 0%, #2d3a8c 100%)", color: "white", display: "flex", flexDirection: "column", p: 2 }}>
-        {/* Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, #00bcd4 0%, #4caf50 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Favorite sx={{ color: "white", fontSize: 20 }} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>ElderCare</Typography>
-            <Typography sx={{ fontSize: "0.65rem", opacity: 0.7 }}>Support & Companion</Typography>
-          </Box>
-        </Box>
-
-        {/* User Profile */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3, p: 1.5, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.1)" }}>
-          <Avatar sx={{ bgcolor: "#7c4dff", width: 40, height: 40 }}>{userName.charAt(0)}</Avatar>
-          <Box>
-            <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>{userName} Thompson</Typography>
-            <Typography sx={{ fontSize: "0.7rem", opacity: 0.7 }}>Elder</Typography>
-          </Box>
-        </Box>
-
-        {/* Navigation */}
-        <Box sx={{ flex: 1 }}>
-          {sidebarItems.map((item) => (
-            <Box
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              sx={{
-                display: "flex", alignItems: "center", gap: 1.5, p: 1.5, borderRadius: 2, cursor: "pointer", mb: 0.5,
-                backgroundColor: activeNav === item.id ? "#00bcd4" : "transparent",
-                transition: "all 0.2s ease",
-                "&:hover": { backgroundColor: activeNav === item.id ? "#00bcd4" : "rgba(255,255,255,0.1)" },
-              }}
-            >
-              {item.icon}
-              <Typography sx={{ fontSize: "0.9rem" }}>{item.label}</Typography>
-            </Box>
-          ))}
-        </Box>
-
-        <Button variant="outlined" onClick={handleLogout} sx={{ color: "white", borderColor: "rgba(255,255,255,0.3)", mt: 2, "&:hover": { borderColor: "white", backgroundColor: "rgba(255,255,255,0.1)" } }}>
-          Logout
-        </Button>
-      </Box>
-
+    <>
       {/* Main Content */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "100%" }}>
         {/* Top Bar */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "white", borderBottom: "1px solid #e0e0e0" }}>
           <TextField
@@ -787,9 +801,35 @@ export default function Home() {
             <IconButton onClick={handleNotificationClick}>
               <Badge badgeContent={unreadNotifications} color="error"><Notifications sx={{ color: "#666" }} /></Badge>
             </IconButton>
-            <Avatar sx={{ bgcolor: "#7c4dff", width: 36, height: 36 }}>{userName.charAt(0)}</Avatar>
+            <IconButton onClick={handleProfileClick}>
+              <Avatar sx={{ bgcolor: "#7c4dff", width: 36, height: 36 }}>{userName.charAt(0)}</Avatar>
+            </IconButton>
           </Box>
         </Box>
+
+        {/* Profile Menu */}
+        <Menu
+          anchorEl={profileAnchor}
+          open={Boolean(profileAnchor)}
+          onClose={handleProfileClose}
+          PaperProps={{ sx: { width: 200, mt: 1 } }}
+        >
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{user.name || userName}</Typography>
+            <Typography variant="body2" color="text.secondary">{user.email || "elder@example.com"}</Typography>
+          </Box>
+          <Divider />
+          <MenuItem onClick={handleOpenProfile}>
+            <Person sx={{ mr: 1 }} /> Profile
+          </MenuItem>
+          <MenuItem onClick={handleOpenSettings}>
+            <Settings sx={{ mr: 1 }} /> Settings
+          </MenuItem>
+          <Divider />
+          <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+            <Logout sx={{ mr: 1 }} /> Logout
+          </MenuItem>
+        </Menu>
 
         {/* Notification Menu */}
         <Menu
@@ -1021,10 +1061,86 @@ export default function Home() {
         </DialogActions>
       </Dialog>
 
+      {/* Profile Dialog */}
+      <Dialog open={profileDialog} onClose={() => setProfileDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            My Profile
+            <IconButton onClick={() => setProfileDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2, textAlign: "center" }}>
+            <Avatar sx={{ width: 80, height: 80, bgcolor: "#7c4dff", mx: "auto", mb: 2, fontSize: "2rem" }}>
+              {userName.charAt(0)}
+            </Avatar>
+            <TextField
+              fullWidth
+              label="Full Name"
+              value={editProfile.name}
+              onChange={(e) => setEditProfile({ ...editProfile, name: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={editProfile.email}
+              onChange={(e) => setEditProfile({ ...editProfile, email: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Phone"
+              value={editProfile.phone}
+              onChange={(e) => setEditProfile({ ...editProfile, phone: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setProfileDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveProfile}>Save Profile</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsDialog} onClose={() => setSettingsDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            Settings
+            <IconButton onClick={() => setSettingsDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <List>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+              <ListItemText primary="Notifications" secondary="Receive alerts and reminders" />
+              <Chip label="Enabled" color="success" size="small" />
+            </ListItem>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+              <ListItemText primary="Voice Assistant" secondary="Enable voice commands" />
+              <Chip label="Enabled" color="success" size="small" />
+            </ListItem>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
+              <ListItemText primary="Large Text" secondary="Increase text size" />
+              <Chip label="Enabled" color="success" size="small" />
+            </ListItem>
+            <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2 }}>
+              <ListItemText primary="Emergency Contacts" secondary="Quick access to emergency services" />
+              <Chip label="Configured" color="primary" size="small" />
+            </ListItem>
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsDialog(false)}>Close</Button>
+          <Button variant="contained" onClick={() => { setSettingsDialog(false); setSnackbar({ open: true, message: "Settings saved!", severity: "success" }); }}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar */}
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
       </Snackbar>
-    </Box>
+    </>
   );
 }
