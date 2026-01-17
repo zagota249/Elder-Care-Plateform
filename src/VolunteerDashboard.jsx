@@ -79,20 +79,16 @@ export default function VolunteerDashboard() {
     const handleSidebarNav = (e) => {
       const menuMap = {
         home: "Dashboard",
-        profile: "Profile",
+        assigned: "Elders",
+        schedule: "Schedule",
         tasks: "Tasks",
-        medications: "Elders",
-        emergency: "Emergency",
+        messages: "Messages",
         settings: "Settings",
       };
-      if (menuMap[e.detail.id]) {
-        if (e.detail.id === "profile") {
-          setProfileDialog(true);
-        } else if (e.detail.id === "settings") {
-          setSettingsDialog(true);
-        } else {
-          setActiveMenu(menuMap[e.detail.id]);
-        }
+      if (e.detail.id === "settings") {
+        setSettingsDialog(true);
+      } else if (menuMap[e.detail.id]) {
+        setActiveMenu(menuMap[e.detail.id]);
       }
     };
     window.addEventListener("sidebarNav", handleSidebarNav);
