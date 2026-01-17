@@ -1,70 +1,234 @@
-# Getting Started with Create React App
+# ElderCare Management Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive web-based platform designed to support elderly care management, connecting elders, family members, caregivers, volunteers, and administrators in a unified system.
 
-## Available Scripts
+![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-7.x-47A248?logo=mongodb)
+![MUI](https://img.shields.io/badge/MUI-v7-007FFF?logo=mui)
+![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)
 
-In the project directory, you can run:
+## 📋 Table of Contents
 
-### `npm start`
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [User Roles](#user-roles)
+- [Screenshots](#screenshots)
+- [Contributors](#contributors)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🎯 Overview
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+ElderCare is a software engineering project that provides a centralized platform for managing elderly care. The system allows elders to track their medications, appointments, and health metrics while enabling family members and caregivers to monitor and assist remotely. Volunteers can sign up for activities, and administrators have full control over the platform.
 
-### `npm test`
+## ✨ Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### For Elders
+- 📅 View and manage daily medication schedules
+- 🏥 Track medical appointments
+- 📊 Monitor health metrics
+- 🔔 Receive reminders and notifications
 
-### `npm run build`
+### For Family Members
+- 👴 Monitor elder's health and activities
+- 💊 View medication adherence
+- 📱 Stay connected with caregivers
+- 📋 Access health reports
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### For Volunteers
+- 📝 Register for volunteer activities
+- 📆 View upcoming events
+- ✅ Track participation history
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### For Administrators
+- 👥 Manage all user accounts
+- 📊 View platform analytics
+- ⚙️ System configuration
+- 📈 Generate reports
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### General Features
+- 🔐 Secure authentication (JWT)
+- 🔑 Password reset via email
+- 📱 Responsive design for all devices
+- 🎨 Clean, elderly-friendly UI
 
-### `npm run eject`
+## 🛠️ Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI Framework |
+| React Router v6 | Navigation |
+| Material UI (MUI) v7 | UI Components |
+| Axios | HTTP Client |
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Node.js | Runtime Environment |
+| Express 5 | Web Framework |
+| MongoDB | Database |
+| Mongoose 9 | ODM |
+| JWT | Authentication |
+| bcryptjs | Password Hashing |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### DevOps
+| Technology | Purpose |
+|------------|---------|
+| Docker | Containerization |
+| Docker Compose | Multi-container orchestration |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📁 Project Structure
 
-## Learn More
+```
+project/
+├── backend/                 # Node.js Express API
+│   ├── controllers/         # Request handlers
+│   ├── middleware/          # Auth middleware
+│   ├── models/              # Mongoose schemas
+│   ├── routes/              # API routes
+│   ├── server.js            # Entry point
+│   └── Dockerfile
+│
+├── eldercare/               # React Frontend
+│   ├── public/              # Static assets
+│   ├── src/
+│   │   ├── App.js           # Main app with routes
+│   │   ├── homepage.jsx     # Landing page
+│   │   ├── signIn.jsx       # Authentication
+│   │   ├── signUp.jsx       # Registration
+│   │   ├── elder_Dashboard.jsx
+│   │   ├── FamilyDashboard.jsx
+│   │   ├── VolunteerDashboard.jsx
+│   │   ├── AdminDashboard.jsx
+│   │   └── ...
+│   └── Dockerfile
+│
+├── docker-compose.yml       # Docker orchestration
+└── README.md
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🚀 Installation
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
+- Node.js 18.x or higher
+- MongoDB 7.x (or Docker)
+- npm or yarn
 
-### Code Splitting
+### Option 1: Using Docker (Recommended)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/eldercare-platform.git
+cd eldercare-platform
 
-### Analyzing the Bundle Size
+# Start all services
+docker-compose up -d
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Access the application
+# Frontend: http://localhost:3000
+# Backend:  http://localhost:5000
+# MongoDB:  localhost:27017
+```
 
-### Making a Progressive Web App
+### Option 2: Manual Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Backend Setup
+```bash
+cd backend
+npm install
+npm start
+```
 
-### Advanced Configuration
+#### Frontend Setup
+```bash
+cd eldercare
+npm install
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🏃 Running the Application
 
-### Deployment
+| Service | URL | Port |
+|---------|-----|------|
+| Frontend | http://localhost:3000 | 3000 |
+| Backend API | http://localhost:5000 | 5000 |
+| MongoDB | localhost | 27017 |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Environment Variables
 
-### `npm run build` fails to minify
+Create a `.env` file in the backend directory:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/eldercare
+JWT_SECRET=your_jwt_secret_key
+```
+
+## 📚 API Documentation
+
+Full API documentation is available at [API-DOCUMENTATION.md](./API-DOCUMENTATION.md)
+
+### Quick API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/signup` | POST | Register new user |
+| `/api/auth/signin` | POST | User login |
+| `/api/auth/forgot-password` | POST | Request password reset |
+| `/api/auth/reset-password` | POST | Reset password |
+| `/api/family/elders` | GET | Get linked elders |
+| `/api/volunteer/activities` | GET | Get activities |
+| `/api/admin/users` | GET | Get all users (admin) |
+
+## 👥 User Roles
+
+| Role | Description | Access Level |
+|------|-------------|--------------|
+| **Elder** | Primary care recipient | Personal dashboard, medications, appointments |
+| **Family Member** | Family of elder | Monitor elder's health, view reports |
+| **Caregiver** | Professional caregiver | Manage assigned elders |
+| **Volunteer** | Community volunteer | Activities, events |
+| **Admin** | System administrator | Full platform access |
+
+## 📸 Screenshots
+
+> Add screenshots of your application here
+
+<!-- 
+![Homepage](./screenshots/homepage.png)
+![Dashboard](./screenshots/dashboard.png)
+-->
+
+## 🧪 Testing
+
+```bash
+# Run frontend tests
+cd eldercare
+npm test
+
+# Run backend tests (if configured)
+cd backend
+npm test
+```
+
+## 🤝 Contributors
+
+| Name | Role | GitHub |
+|------|------|--------|
+| Muhammad Zain bin Zafar | Developer | https://github.com/zagota249  |
+| Bilal Rafiq | Developer | https://github.com/devil-458 |
+
+## 📄 License
+
+This project is developed for academic purposes as part of a Software Engineering course.
+
+---
+
+<p align="center">
+  Made with ❤️ for elderly care
+</p>

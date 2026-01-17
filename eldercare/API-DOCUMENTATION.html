@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ElderCare API Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #27ae60;
+            margin-top: 30px;
+        }
+        h4 {
+            color: #8e44ad;
+            margin-top: 25px;
+        }
+        .header-center {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-blue { background-color: #3498db; }
+        .badge-green { background-color: #27ae60; }
+        .badge-purple { background-color: #9b59b6; }
+        .badge-orange { background-color: #e67e22; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 15px 0;
+        }
+        .inline-code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c0392b;
+        }
+        .endpoint-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .method-get { color: #27ae60; font-weight: bold; }
+        .method-post { color: #f39c12; font-weight: bold; }
+        .method-patch { color: #9b59b6; font-weight: bold; }
+        .method-delete { color: #e74c3c; font-weight: bold; }
+        .lock-icon { color: #e74c3c; }
+        .diagram-box {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .team-table th {
+            background-color: #27ae60;
+        }
+        .note-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .success-box {
+            background-color: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .error-box {
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #bdc3c7;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-center">
+    <h1>📚 ElderCare API Documentation</h1>
+    <p>
+        <span class="badge badge-blue">API v1.0</span>
+        <span class="badge badge-green">Node.js</span>
+        <span class="badge badge-purple">Express</span>
+        <span class="badge badge-orange">MongoDB</span>
+    </p>
+    <p><strong>A Comprehensive REST API for Elder Care Management System</strong></p>
+</div>
+
+<div class="toc">
+    <h3>📑 Table of Contents</h3>
+    <ul>
+        <li>1. <a href="#overview">Overview</a></li>
+        <li>2. <a href="#getting-started">Getting Started</a></li>
+        <li>3. <a href="#authentication">Authentication</a></li>
+        <li>4. <a href="#api-endpoints">API Endpoints</a>
+            <ul>
+                <li>4.1 <a href="#auth-routes">Auth Routes</a></li>
+                <li>4.2 <a href="#admin-routes">Admin Routes</a></li>
+                <li>4.3 <a href="#family-routes">Family Routes</a></li>
+                <li>4.4 <a href="#volunteer-routes">Volunteer Routes</a></li>
+            </ul>
+        </li>
+        <li>5. <a href="#data-models">Data Models</a></li>
+        <li>6. <a href="#error-handling">Error Handling</a></li>
+        <li>7. <a href="#team">Project Team</a></li>
+    </ul>
+</div>
+
+<h2 id="overview">🌟 1. Overview</h2>
+
+<p>The ElderCare API provides a robust backend for managing elder care services, including health monitoring, medication tracking, activity scheduling, and caregiver coordination.</p>
+
+<div class="diagram-box">
+┌─────────────────────────────────────────────────────────────────┐
+│                    ELDERCARE API ARCHITECTURE                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────┐     ┌──────────┐     ┌──────────┐               │
+│   │  React   │────▶│  Express │────▶│ MongoDB  │               │
+│   │ Frontend │◀────│   API    │◀────│ Database │               │
+│   └──────────┘     └──────────┘     └──────────┘               │
+│        :3000            :5000                                    │
+│                                                                  │
+│   ┌──────────────────────────────────────────────────────────┐ │
+│   │                    API ENDPOINTS                          │ │
+│   ├──────────────────────────────────────────────────────────┤ │
+│   │  /api/auth      → Authentication (Login, Register)       │ │
+│   │  /api/admin     → Admin Dashboard & User Management      │ │
+│   │  /api/family    → Family Member Access to Elder Data     │ │
+│   │  /api/volunteer → Caregiver Tasks & Activities           │ │
+│   └──────────────────────────────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+</div>
+
+<h3>Key Features</h3>
+<ul>
+    <li>🔐 JWT-based Authentication</li>
+    <li>👥 Role-based Access Control (Elder, Family, Caregiver, Admin)</li>
+    <li>📊 Health Metrics Tracking</li>
+    <li>💊 Medication Management</li>
+    <li>📅 Activity & Event Scheduling</li>
+    <li>🏥 Emergency Contact Management</li>
+</ul>
+
+<h2 id="getting-started">🚀 2. Getting Started</h2>
+
+<h3>Base URL</h3>
+<div class="code-block">Development:  http://localhost:5000/api
+Production:   https://your-domain.com/api</div>
+
+<h3>Installation</h3>
+<div class="code-block"># Clone the repository
+git clone https://github.com/your-repo/eldercare.git
+
+# Navigate to backend
+cd eldercare/backend
+
+# Install dependencies
+npm install
+
+# Start server
+npm start</div>
+
+<h3>Environment Variables</h3>
+<table>
+    <tr><th>Variable</th><th>Description</th><th>Example</th></tr>
+    <tr><td>PORT</td><td>Server port</td><td>5000</td></tr>
+    <tr><td>MONGODB_URI</td><td>MongoDB connection string</td><td>mongodb://localhost:27017/eldercare</td></tr>
+    <tr><td>JWT_SECRET</td><td>Secret key for JWT</td><td>your-secret-key</td></tr>
+    <tr><td>JWT_EXPIRES_IN</td><td>Token expiry duration</td><td>7d</td></tr>
+</table>
+
+<h2 id="authentication">🔐 3. Authentication</h2>
+
+<h3>Authentication Flow</h3>
+<div class="diagram-box">
+┌─────────────────────────────────────────────────────────────────┐
+│                    AUTHENTICATION FLOW                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. USER LOGIN                                                   │
+│     Client ──POST /signin──▶ API ──Check──▶ Database            │
+│                                                                  │
+│  2. TOKEN ISSUED                                                 │
+│     { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }        │
+│                                                                  │
+│  3. PROTECTED REQUESTS                                           │
+│     Client ──GET /profile──▶ API                                │
+│     Header: Authorization: Bearer &lt;token&gt;                       │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+</div>
+
+<h3>Request Headers</h3>
+<div class="code-block">Authorization: Bearer &lt;your-jwt-token&gt;
+Content-Type: application/json</div>
+
+<h3>User Roles</h3>
+<table>
+    <tr><th>Role</th><th>Access Level</th><th>Description</th></tr>
+    <tr><td><span class="inline-code">elder</span></td><td>Basic</td><td>Can view own profile and health data</td></tr>
+    <tr><td><span class="inline-code">familyMember</span></td><td>Limited</td><td>Can view assigned elder's data</td></tr>
+    <tr><td><span class="inline-code">caregiver</span></td><td>Standard</td><td>Can manage assigned elders, log activities</td></tr>
+    <tr><td><span class="inline-code">admin</span></td><td>Full</td><td>Complete system access</td></tr>
+</table>
+
+<h2 id="api-endpoints">📡 4. API Endpoints</h2>
+
+<!-- AUTH ROUTES -->
+<h3 id="auth-routes">4.1 Auth Routes 🔑</h3>
+<p><strong>Base Path:</strong> <span class="inline-code">/api/auth</span></p>
+
+<table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/auth/signup</td><td>Register new user</td><td>❌</td></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/auth/signin</td><td>Login user</td><td>❌</td></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/auth/forgot-password</td><td>Request password reset</td><td>❌</td></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/auth/reset-password</td><td>Reset password</td><td>❌</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/auth/profile</td><td>Get current user</td><td>🔒</td></tr>
+</table>
+
+<h4>POST /api/auth/signup</h4>
+<p>Register a new user account.</p>
+<p><strong>Request Body:</strong></p>
+<div class="code-block">{
+  "fullName": "Bilal Rafiq",
+  "email": "bilal@example.com",
+  "password": "securePassword123",
+  "role": "elder"
+}</div>
+
+<p><strong>Success Response (201):</strong></p>
+<div class="success-box">
+<div class="code-block">{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "user": {
+      "_id": "65abc123def456",
+      "fullName": "Bilal Rafiq",
+      "email": "bilal@example.com",
+      "role": "elder"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}</div>
+</div>
+
+<h4>POST /api/auth/signin</h4>
+<p>Login with email and password.</p>
+<p><strong>Request Body:</strong></p>
+<div class="code-block">{
+  "email": "bilal@example.com",
+  "password": "securePassword123"
+}</div>
+
+<p><strong>Success Response (200):</strong></p>
+<div class="success-box">
+<div class="code-block">{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "_id": "65abc123def456",
+      "fullName": "Bilal Rafiq",
+      "email": "bilal@example.com",
+      "role": "elder"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}</div>
+</div>
+
+<!-- ADMIN ROUTES -->
+<h3 id="admin-routes">4.2 Admin Routes 👨‍💼</h3>
+<p><strong>Base Path:</strong> <span class="inline-code">/api/admin</span></p>
+<div class="note-box">⚠️ <strong>Note:</strong> All admin routes require authentication and admin role.</div>
+
+<table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/admin/stats</td><td>Dashboard statistics</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/admin/system-health</td><td>System health status</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/admin/users</td><td>List all users</td></tr>
+    <tr><td><span class="method-patch">PATCH</span></td><td>/api/admin/users/:id/status</td><td>Update user status</td></tr>
+    <tr><td><span class="method-delete">DELETE</span></td><td>/api/admin/users/:id</td><td>Delete user</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/admin/elders</td><td>List all elders</td></tr>
+</table>
+
+<h4>GET /api/admin/stats 🔒</h4>
+<p>Get dashboard statistics.</p>
+<p><strong>Success Response (200):</strong></p>
+<div class="code-block">{
+  "success": true,
+  "data": {
+    "totalUsers": 150,
+    "totalElders": 80,
+    "totalCaregivers": 45,
+    "totalFamilyMembers": 25,
+    "activeUsers": 120,
+    "newUsersThisMonth": 15,
+    "healthAlertsCount": 5
+  }
+}</div>
+
+<!-- FAMILY ROUTES -->
+<h3 id="family-routes">4.3 Family Routes 👨‍👩‍👧</h3>
+<p><strong>Base Path:</strong> <span class="inline-code">/api/family</span></p>
+<div class="note-box">⚠️ <strong>Note:</strong> All family routes require authentication.</div>
+
+<table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id</td><td>Elder details</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id/dashboard</td><td>Elder dashboard data</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id/health</td><td>Health metrics</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id/medications</td><td>Medications list</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id/activities</td><td>Activities list</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/family/elder/:id/events</td><td>Events list</td></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/family/elder/:id/events</td><td>Create event</td></tr>
+</table>
+
+<h4>GET /api/family/elder/:elderId/health 🔒</h4>
+<p>Get elder's health metrics.</p>
+<p><strong>Success Response (200):</strong></p>
+<div class="code-block">{
+  "success": true,
+  "data": [
+    {
+      "_id": "65health123",
+      "type": "heartRate",
+      "value": 72,
+      "unit": "bpm",
+      "status": "normal",
+      "recordedAt": "2026-01-03T10:00:00.000Z"
+    },
+    {
+      "_id": "65health124",
+      "type": "bloodPressure",
+      "value": { "systolic": 120, "diastolic": 80 },
+      "unit": "mmHg",
+      "status": "normal",
+      "recordedAt": "2026-01-03T10:00:00.000Z"
+    }
+  ]
+}</div>
+
+<!-- VOLUNTEER ROUTES -->
+<h3 id="volunteer-routes">4.4 Volunteer (Caregiver) Routes 🏥</h3>
+<p><strong>Base Path:</strong> <span class="inline-code">/api/volunteer</span></p>
+<div class="note-box">⚠️ <strong>Note:</strong> All volunteer routes require authentication and caregiver role.</div>
+
+<table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/volunteer/elders</td><td>Assigned elders</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/volunteer/tasks/today</td><td>Today's tasks</td></tr>
+    <tr><td><span class="method-get">GET</span></td><td>/api/volunteer/stats</td><td>Volunteer statistics</td></tr>
+    <tr><td><span class="method-post">POST</span></td><td>/api/volunteer/activity</td><td>Log activity</td></tr>
+    <tr><td><span class="method-patch">PATCH</span></td><td>/api/volunteer/availability</td><td>Update availability</td></tr>
+    <tr><td><span class="method-patch">PATCH</span></td><td>/api/volunteer/tasks/:type/:id/complete</td><td>Complete task</td></tr>
+</table>
+
+<h4>GET /api/volunteer/tasks/today 🔒</h4>
+<p>Get today's scheduled tasks.</p>
+<p><strong>Success Response (200):</strong></p>
+<div class="code-block">{
+  "success": true,
+  "data": {
+    "medications": [
+      {
+        "_id": "65task123",
+        "elderName": "Ahmed Khan",
+        "task": "Give Metformin 500mg",
+        "time": "08:00",
+        "completed": false
+      }
+    ],
+    "activities": [
+      {
+        "_id": "65act123",
+        "elderName": "Ahmed Khan",
+        "task": "Morning walk",
+        "time": "07:00",
+        "completed": true
+      }
+    ]
+  }
+}</div>
+
+<h2 id="data-models">📊 5. Data Models</h2>
+
+<h3>User Schema</h3>
+<table>
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+    <tr><td>fullName</td><td>String</td><td>✅</td><td>User's full name</td></tr>
+    <tr><td>email</td><td>String</td><td>✅</td><td>Unique email address</td></tr>
+    <tr><td>password</td><td>String</td><td>✅</td><td>Hashed password (min 6 chars)</td></tr>
+    <tr><td>role</td><td>Enum</td><td>✅</td><td>elder, caregiver, familyMember, admin</td></tr>
+    <tr><td>resetToken</td><td>String</td><td>❌</td><td>Password reset token</td></tr>
+    <tr><td>resetTokenExpiry</td><td>Date</td><td>❌</td><td>Token expiration time</td></tr>
+</table>
+
+<h3>Elder Schema</h3>
+<table>
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+    <tr><td>userId</td><td>ObjectId</td><td>✅</td><td>Reference to User</td></tr>
+    <tr><td>fullName</td><td>String</td><td>✅</td><td>Elder's full name</td></tr>
+    <tr><td>age</td><td>Number</td><td>✅</td><td>Elder's age</td></tr>
+    <tr><td>gender</td><td>Enum</td><td>❌</td><td>male, female, other</td></tr>
+    <tr><td>address</td><td>Object</td><td>❌</td><td>street, city, state, zipCode</td></tr>
+    <tr><td>emergencyContacts</td><td>Array</td><td>❌</td><td>name, relationship, phone, email</td></tr>
+    <tr><td>medicalInfo</td><td>Object</td><td>❌</td><td>bloodType, allergies, conditions</td></tr>
+    <tr><td>healthScore</td><td>Number</td><td>❌</td><td>0-100, default 80</td></tr>
+    <tr><td>status</td><td>Enum</td><td>❌</td><td>active, inactive, emergency</td></tr>
+</table>
+
+<h3>Health Metric Schema</h3>
+<table>
+    <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+    <tr><td>elderId</td><td>ObjectId</td><td>✅</td><td>Reference to Elder</td></tr>
+    <tr><td>type</td><td>Enum</td><td>✅</td><td>heartRate, bloodPressure, steps, sleep, weight, glucose</td></tr>
+    <tr><td>value</td><td>Mixed</td><td>✅</td><td>Metric value (Number or Object)</td></tr>
+    <tr><td>unit</td><td>String</td><td>✅</td><td>bpm, mmHg, steps, hours, kg, mg/dL</td></tr>
+    <tr><td>status</td><td>Enum</td><td>❌</td><td>normal, low, high, critical</td></tr>
+    <tr><td>recordedAt</td><td>Date</td><td>❌</td><td>Timestamp of recording</td></tr>
+</table>
+
+<h2 id="error-handling">⚠️ 6. Error Handling</h2>
+
+<h3>Standard Error Response</h3>
+<div class="error-box">
+<div class="code-block">{
+  "success": false,
+  "message": "Error description",
+  "error": {
+    "code": "ERROR_CODE",
+    "details": "Additional details"
+  }
+}</div>
+</div>
+
+<h3>HTTP Status Codes</h3>
+<table>
+    <tr><th>Code</th><th>Meaning</th><th>When Used</th></tr>
+    <tr><td>200</td><td>OK</td><td>Successful GET, PATCH</td></tr>
+    <tr><td>201</td><td>Created</td><td>Successful POST</td></tr>
+    <tr><td>400</td><td>Bad Request</td><td>Invalid input data</td></tr>
+    <tr><td>401</td><td>Unauthorized</td><td>Missing/invalid token</td></tr>
+    <tr><td>403</td><td>Forbidden</td><td>Insufficient permissions</td></tr>
+    <tr><td>404</td><td>Not Found</td><td>Resource doesn't exist</td></tr>
+    <tr><td>409</td><td>Conflict</td><td>Duplicate resource</td></tr>
+    <tr><td>500</td><td>Server Error</td><td>Internal server error</td></tr>
+</table>
+
+<h2 id="team">👥 7. Project Team</h2>
+
+<table class="team-table">
+    <tr><th>Name</th><th>Roll Number</th><th>Role</th></tr>
+    <tr><td>Bilal Rafiq</td><td>24-CS-458</td><td>Full Stack Developer</td></tr>
+    <tr><td>Talha Tariq</td><td>24-CS-363</td><td>Frontend Developer</td></tr>
+    <tr><td>Zee Waqar</td><td>24-CS-464</td><td>Backend Developer</td></tr>
+    <tr><td>Muhammad Zain bin Zafar</td><td>24-CS-486</td><td>Backend Developer</td></tr>
+</table>
+
+<footer>
+    <p><strong>ElderCare API Documentation v1.0</strong></p>
+    <p>Built with ❤️ by ElderCare Team</p>
+    <p>© 2026 All Rights Reserved</p>
+</footer>
+
+</body>
+</html>

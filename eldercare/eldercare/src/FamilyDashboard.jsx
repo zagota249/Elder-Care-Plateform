@@ -32,19 +32,20 @@ export default function FamilyDashboard() {
     const handleSidebarNav = (e) => {
       const menuMap = {
         home: "Dashboard",
-        elders: "Elders",
-        medications: "Medicines",
+        profile: "Profile",
         tasks: "Tasks",
-        messages: "Messages",
-        notifications: "Notifications",
+        medications: "Medicines",
+        emergency: "Emergency",
         settings: "Settings",
       };
-      if (e.detail.id === "settings") {
-        setSettingsDialog(true);
-      } else if (e.detail.id === "profile") {
-        handleOpenProfile();
-      } else if (menuMap[e.detail.id]) {
-        setActiveMenu(menuMap[e.detail.id]);
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveMenu(menuMap[e.detail.id]);
+        }
       }
     };
     window.addEventListener("sidebarNav", handleSidebarNav);

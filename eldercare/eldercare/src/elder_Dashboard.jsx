@@ -134,19 +134,19 @@ export default function Home() {
         profile: "profile",
         tasks: "tasks",
         medications: "medicines",
-        medicines: "medicines",
-        messages: "messages",
         emergency: "emergency",
         settings: "settings",
       };
-      if (e.detail.id === "profile") {
-        setProfileDialog(true);
-      } else if (e.detail.id === "settings") {
-        setSettingsDialog(true);
-      } else if (e.detail.id === "emergency") {
-        setOpenSOSDialog(true);
-      } else if (menuMap[e.detail.id]) {
-        setActiveNav(menuMap[e.detail.id]);
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else if (e.detail.id === "emergency") {
+          setOpenSOSDialog(true);
+        } else {
+          setActiveNav(menuMap[e.detail.id]);
+        }
       }
     };
     window.addEventListener("sidebarNav", handleSidebarNav);
@@ -348,6 +348,12 @@ export default function Home() {
   const takenCount = medicines.filter(m => m.status === "taken").length;
   const totalMedicines = medicines.length;
   const progressPercent = (takenCount / totalMedicines) * 100;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   // Render content based on active navigation
   const renderContent = () => {

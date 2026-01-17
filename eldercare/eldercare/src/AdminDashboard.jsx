@@ -96,18 +96,20 @@ export default function AdminDashboard() {
     const handleSidebarNav = (e) => {
       const menuMap = {
         home: "dashboard",
-        users: "users",
-        volunteers: "volunteers",
-        sos: "sos",
-        reports: "reports",
+        profile: "profile",
+        tasks: "users",
+        medications: "volunteers",
+        emergency: "sos",
         settings: "settings",
       };
-      if (e.detail.id === "settings") {
-        setSettingsDialog(true);
-      } else if (e.detail.id === "profile") {
-        handleOpenProfile();
-      } else if (menuMap[e.detail.id]) {
-        setActiveNav(menuMap[e.detail.id]);
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveNav(menuMap[e.detail.id]);
+        }
       }
     };
     window.addEventListener("sidebarNav", handleSidebarNav);

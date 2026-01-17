@@ -79,17 +79,20 @@ export default function VolunteerDashboard() {
     const handleSidebarNav = (e) => {
       const menuMap = {
         home: "Dashboard",
-        helpRequests: "HelpRequests",
-        messages: "Messages",
         profile: "Profile",
+        tasks: "Tasks",
+        medications: "Elders",
+        emergency: "Emergency",
         settings: "Settings",
       };
-      if (e.detail.id === "settings") {
-        setSettingsDialog(true);
-      } else if (e.detail.id === "profile") {
-        handleOpenProfile();
-      } else if (menuMap[e.detail.id]) {
-        setActiveMenu(menuMap[e.detail.id]);
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveMenu(menuMap[e.detail.id]);
+        }
       }
     };
     window.addEventListener("sidebarNav", handleSidebarNav);
@@ -398,7 +401,7 @@ export default function VolunteerDashboard() {
         )}
 
         {/* Help Requests Section */}
-        {(activeMenu === "HelpRequests" || activeMenu === "Help Requests") && (
+        {activeMenu === "Help Requests" && (
           <Box>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>Active Help Requests</Typography>
