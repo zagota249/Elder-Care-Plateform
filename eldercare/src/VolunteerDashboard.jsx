@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,6 +20,9 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  Menu,
+  MenuItem,
+  Divider,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -37,25 +40,89 @@ import {
   Edit,
   Save,
   Cancel,
+  Settings,
+  Logout,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function VolunteerDashboard() {
   const navigate = useNavigate();
-  // eslint-disable-next-line no-unused-vars
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
+  // User profile state from localStorage
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || '{"name": "James Wilson", "email": "james@example.com"}');
+    } catch {
+      return { name: "James Wilson", email: "james@example.com" };
+    }
+  });
+
+  // Profile menu anchor
+  const [profileAnchor, setProfileAnchor] = useState(null);
+  const [profileDialog, setProfileDialog] = useState(false);
+
   // Profile State
   const [profileData, setProfileData] = useState({
-    name: "James Wilson",
-    email: "james@example.com",
+    name: user.name || "James Wilson",
+    email: user.email || "james@example.com",
     phone: "+1 (555) 123-4567",
     skills: "First Aid, Driving, Companionship",
     availability: "Weekdays 9AM-5PM",
   });
   const [editingProfile, setEditingProfile] = useState(false);
   const [tempProfile, setTempProfile] = useState({ ...profileData });
+
+  // Listen for sidebar navigation events
+  useEffect(() => {
+    const handleSidebarNav = (e) => {
+      const menuMap = {
+        home: "Dashboard",
+        profile: "Profile",
+        tasks: "Tasks",
+        medications: "Elders",
+        emergency: "Emergency",
+        settings: "Settings",
+      };
+      if (menuMap[e.detail.id]) {
+        if (e.detail.id === "profile") {
+          setProfileDialog(true);
+        } else if (e.detail.id === "settings") {
+          setSettingsDialog(true);
+        } else {
+          setActiveMenu(menuMap[e.detail.id]);
+        }
+      }
+    };
+    window.addEventListener("sidebarNav", handleSidebarNav);
+    return () => window.removeEventListener("sidebarNav", handleSidebarNav);
+  }, []);
+
+  // Profile handlers
+  const handleProfileClick = (event) => {
+    setProfileAnchor(event.currentTarget);
+  };
+
+  const handleProfileClose = () => {
+    setProfileAnchor(null);
+  };
+
+  const handleOpenProfile = () => {
+    setProfileAnchor(null);
+    setProfileDialog(true);
+  };
+
+  const handleOpenSettings = () => {
+    setProfileAnchor(null);
+    setSettingsDialog(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   // Dialog States
   const [callDialog, setCallDialog] = useState({ open: false, elder: null });
@@ -193,9 +260,13 @@ export default function VolunteerDashboard() {
     setEditingProfile(true);
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfileData = () => {
     setProfileData({ ...tempProfile });
     setEditingProfile(false);
+    // Also update localStorage
+    const updatedUser = { ...user, name: tempProfile.name, email: tempProfile.email };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
     setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
   };
 
@@ -208,17 +279,51 @@ export default function VolunteerDashboard() {
     <>
       {/* Main Content */}
       <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
-        {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
-            {activeMenu === "Dashboard" ? "Volunteer Dashboard" : activeMenu}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {activeMenu === "Dashboard" && "Thank you for making a difference!"}
-            {activeMenu === "Help Requests" && "View and respond to help requests from elders"}
-            {activeMenu === "Messages" && "Communicate with elders and coordinators"}
-            {activeMenu === "Profile" && "Manage your volunteer profile and settings"}
-          </Typography>
+        {/* Header with Profile */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
+              {activeMenu === "Dashboard" ? "Volunteer Dashboard" : activeMenu}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {activeMenu === "Dashboard" && "Thank you for making a difference!"}
+              {activeMenu === "Help Requests" && "View and respond to help requests from elders"}
+              {activeMenu === "Messages" && "Communicate with elders and coordinators"}
+              {activeMenu === "Profile" && "Manage your volunteer profile and settings"}
+              {activeMenu === "Tasks" && "View assigned tasks"}
+              {activeMenu === "Elders" && "View nearby elders"}
+              {activeMenu === "Emergency" && "Emergency contacts"}
+            </Typography>
+          </Box>
+          <Box>
+            <IconButton onClick={handleProfileClick}>
+              <Avatar sx={{ bgcolor: "#1976d2", cursor: "pointer" }}>
+                {profileData.name?.charAt(0)?.toUpperCase() || "V"}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={profileAnchor}
+              open={Boolean(profileAnchor)}
+              onClose={handleProfileClose}
+              PaperProps={{ sx: { width: 200, mt: 1 } }}
+            >
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{profileData.name}</Typography>
+                <Typography variant="body2" color="text.secondary">{profileData.email}</Typography>
+              </Box>
+              <Divider />
+              <MenuItem onClick={handleOpenProfile}>
+                <Person sx={{ mr: 1 }} /> Profile
+              </MenuItem>
+              <MenuItem onClick={handleOpenSettings}>
+                <Settings sx={{ mr: 1 }} /> Settings
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+                <Logout sx={{ mr: 1 }} /> Logout
+              </MenuItem>
+            </Menu>
+          </Box>
         </Box>
 
         {/* Dashboard Section */}
@@ -375,7 +480,7 @@ export default function VolunteerDashboard() {
                     <Button variant="outlined" fullWidth startIcon={<Edit />} onClick={handleEditProfile} sx={{ borderRadius: 2, "&:hover": { transform: "scale(1.02)" } }}>Edit Profile</Button>
                   ) : (
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      <Button variant="contained" fullWidth startIcon={<Save />} onClick={handleSaveProfile} sx={{ borderRadius: 2 }}>Save</Button>
+                      <Button variant="contained" fullWidth startIcon={<Save />} onClick={handleSaveProfileData} sx={{ borderRadius: 2 }}>Save</Button>
                       <Button variant="outlined" fullWidth startIcon={<Cancel />} onClick={handleCancelEdit} sx={{ borderRadius: 2 }}>Cancel</Button>
                     </Box>
                   )}
@@ -505,7 +610,12 @@ export default function VolunteerDashboard() {
 
       {/* Settings Dialog */}
       <Dialog open={settingsDialog} onClose={() => setSettingsDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Settings</DialogTitle>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            Settings
+            <IconButton onClick={() => setSettingsDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
         <DialogContent>
           <List>
             <ListItem sx={{ bgcolor: "#f5f7fa", borderRadius: 2, mb: 1 }}>
@@ -525,6 +635,62 @@ export default function VolunteerDashboard() {
         <DialogActions>
           <Button onClick={() => setSettingsDialog(false)}>Close</Button>
           <Button variant="contained" onClick={() => { setSettingsDialog(false); setSnackbar({ open: true, message: "Settings saved!", severity: "success" }); }}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Profile Dialog */}
+      <Dialog open={profileDialog} onClose={() => setProfileDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            My Profile
+            <IconButton onClick={() => setProfileDialog(false)}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2, textAlign: "center" }}>
+            <Avatar sx={{ width: 80, height: 80, bgcolor: "#1976d2", mx: "auto", mb: 2, fontSize: "2rem" }}>
+              {profileData.name?.charAt(0)?.toUpperCase() || "V"}
+            </Avatar>
+            <TextField
+              fullWidth
+              label="Full Name"
+              value={tempProfile.name}
+              onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={tempProfile.email}
+              onChange={(e) => setTempProfile({ ...tempProfile, email: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Phone"
+              value={tempProfile.phone}
+              onChange={(e) => setTempProfile({ ...tempProfile, phone: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Skills"
+              value={tempProfile.skills}
+              onChange={(e) => setTempProfile({ ...tempProfile, skills: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Availability"
+              value={tempProfile.availability}
+              onChange={(e) => setTempProfile({ ...tempProfile, availability: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setProfileDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={() => { handleSaveProfileData(); setProfileDialog(false); }}>Save Profile</Button>
         </DialogActions>
       </Dialog>
 
