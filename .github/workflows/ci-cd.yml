@@ -24,15 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Fix node_modules permissions
-        run: chmod -R 755 node_modules/.bin
-
       - name: Run linting
         run: npm run lint --if-present
         continue-on-error: true
 
       - name: Build application
-        run: npm run build
+        run: npx react-scripts build
         env:
           CI: false
 
