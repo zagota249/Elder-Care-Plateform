@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Fix react-scripts permissions
+        run: chmod +x node_modules/.bin/react-scripts || true
+
       - name: Run linting
         run: npm run lint --if-present
         continue-on-error: true
