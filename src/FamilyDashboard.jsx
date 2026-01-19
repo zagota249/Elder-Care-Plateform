@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Card, CardContent, Grid, Avatar, Button, LinearProgress, List, ListItem, ListItemIcon, ListItemText, Chip,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Menu, MenuItem, Divider,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Snackbar, Alert, IconButton, Menu, MenuItem, Divider, InputAdornment,
 } from "@mui/material";
 import {
-  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete, Person, Settings, Logout,
+  Dashboard as DashboardIcon, People, Medication, Task, Message, Notifications, LocationOn, CalendarToday, Visibility, WarningAmber, CheckCircle, Favorite, Close, Add, Send, Phone, Delete, Person, Settings, Logout, Search,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +12,7 @@ export default function FamilyDashboard() {
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // User profile state
   const [user, setUser] = useState(() => {
@@ -36,6 +37,7 @@ export default function FamilyDashboard() {
         medications: "Medicines",
         tasks: "Tasks",
         messages: "Messages",
+        notifications: "Notifications",
         settings: "Settings",
       };
       if (e.detail.id === "settings") {
@@ -213,7 +215,7 @@ export default function FamilyDashboard() {
   return (
     <>
     <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
-        {/* Header with Profile */}
+        {/* Header with Profile and Search */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
@@ -221,7 +223,7 @@ export default function FamilyDashboard() {
             </Typography>
             <Typography variant="body1" color="text.secondary">
               {activeMenu === "Dashboard" && "Manage care for your loved ones"}
-              {activeMenu === "My Elders" && "View and manage your elder family members"}
+              {activeMenu === "Elders" && "View and manage your elder family members"}
               {activeMenu === "Medicines" && "Track medication schedules"}
               {activeMenu === "Tasks" && "View and manage care tasks"}
               {activeMenu === "Messages" && "Communicate with caregivers"}
@@ -229,7 +231,15 @@ export default function FamilyDashboard() {
               {activeMenu === "Emergency" && "Emergency contacts and SOS"}
             </Typography>
           </Box>
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search elders, tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ width: 250, "& .MuiOutlinedInput-root": { borderRadius: 3, backgroundColor: "#f5f5f5" } }}
+              InputProps={{ startAdornment: <InputAdornment position="start"><Search sx={{ color: "#9e9e9e" }} /></InputAdornment> }}
+            />
             <IconButton onClick={handleProfileClick}>
               <Avatar sx={{ bgcolor: "#1976d2", cursor: "pointer" }}>
                 {user.name?.charAt(0)?.toUpperCase() || "F"}
@@ -322,7 +332,7 @@ export default function FamilyDashboard() {
         )}
 
         {/* My Elders Section */}
-        {activeMenu === "My Elders" && (
+        {activeMenu === "Elders" && (
           <Box>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>Elder Family Members</Typography>

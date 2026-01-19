@@ -768,7 +768,7 @@ export default function AdminDashboard() {
           )}
 
           {/* SOS ALERTS SECTION */}
-          {activeNav === "sosAlerts" && (
+          {activeNav === "sos" && (
             <>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                 <Box>

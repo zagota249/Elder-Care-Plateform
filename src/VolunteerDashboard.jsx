@@ -23,6 +23,7 @@ import {
   Menu,
   MenuItem,
   Divider,
+  InputAdornment,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -42,6 +43,7 @@ import {
   Cancel,
   Settings,
   Logout,
+  Search,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -49,6 +51,7 @@ export default function VolunteerDashboard() {
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // User profile state from localStorage
   const [user, setUser] = useState(() => {
@@ -275,7 +278,7 @@ export default function VolunteerDashboard() {
     <>
       {/* Main Content */}
       <Box sx={{ width: "100%", p: 3, overflow: "auto" }}>
-        {/* Header with Profile */}
+        {/* Header with Profile and Search */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 700, color: "#1976d2", mb: 0.5 }}>
@@ -291,7 +294,15 @@ export default function VolunteerDashboard() {
               {activeMenu === "Emergency" && "Emergency contacts"}
             </Typography>
           </Box>
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search elders, requests..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ width: 250, "& .MuiOutlinedInput-root": { borderRadius: 3, backgroundColor: "#f5f5f5" } }}
+              InputProps={{ startAdornment: <InputAdornment position="start"><Search sx={{ color: "#9e9e9e" }} /></InputAdornment> }}
+            />
             <IconButton onClick={handleProfileClick}>
               <Avatar sx={{ bgcolor: "#1976d2", cursor: "pointer" }}>
                 {profileData.name?.charAt(0)?.toUpperCase() || "V"}
@@ -394,6 +405,152 @@ export default function VolunteerDashboard() {
               </CardContent>
             </Card>
           </>
+        )}
+
+        {/* Assigned Elders Section */}
+        {activeMenu === "Elders" && (
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Assigned Elders</Typography>
+              <Chip label={`${nearbyElders.filter(e => e.requestAccepted).length} assigned`} color="primary" size="small" />
+            </Box>
+            <Grid container spacing={2}>
+              {nearbyElders.map((elder) => (
+                <Grid item xs={12} md={6} key={elder.id}>
+                  <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: elder.requestAccepted ? "4px solid #4caf50" : "4px solid #ff9800", transition: "all 0.3s", "&:hover": { transform: "translateY(-3px)", boxShadow: 6 } }}>
+                    <CardContent sx={{ p: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                        <Avatar sx={{ width: 56, height: 56, bgcolor: "#1976d2", mr: 2 }}>{elder.avatar}</Avatar>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: 700 }}>{elder.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">{elder.address}</Typography>
+                          <Chip label={elder.requestAccepted ? "Assigned" : elder.status} size="small" sx={{ mt: 0.5, bgcolor: elder.requestAccepted ? "#4caf50" : elder.statusColor, color: "white" }} />
+                        </Box>
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 2 }}>
+                        <strong>Condition:</strong> {elder.condition}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button variant="outlined" size="small" startIcon={<Phone />} onClick={() => handleCall(elder)} sx={{ borderRadius: 2 }}>Call</Button>
+                        <Button variant="outlined" size="small" startIcon={<Message />} onClick={() => handleMessage(elder)} sx={{ borderRadius: 2 }}>Message</Button>
+                        {!elder.requestAccepted && (
+                          <Button variant="contained" size="small" color="success" onClick={() => handleAcceptRequest(elder.id)} sx={{ borderRadius: 2 }}>Accept</Button>
+                        )}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {/* Schedule Section */}
+        {activeMenu === "Schedule" && (
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>My Schedule</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #1976d2" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Visit Margaret Thompson</Typography>
+                        <Typography variant="body2" color="text.secondary">123 Oak Street, Springfield</Typography>
+                        <Chip label="Today, 2:00 PM" size="small" sx={{ mt: 1, bgcolor: "#e3f2fd", color: "#1976d2" }} />
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button variant="outlined" size="small" startIcon={<Phone />} onClick={() => handleCall(nearbyElders[0])} sx={{ borderRadius: 2 }}>Call</Button>
+                        <Button variant="contained" size="small" sx={{ borderRadius: 2 }}>Start Visit</Button>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #ff9800" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Check on Robert Jenkins</Typography>
+                        <Typography variant="body2" color="text.secondary">456 Maple Avenue, Springfield</Typography>
+                        <Chip label="Tomorrow, 10:00 AM" size="small" sx={{ mt: 1, bgcolor: "#fff3e0", color: "#ff9800" }} />
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button variant="outlined" size="small" startIcon={<Phone />} onClick={() => handleCall(nearbyElders[1])} sx={{ borderRadius: 2 }}>Call</Button>
+                        <Button variant="outlined" size="small" sx={{ borderRadius: 2 }}>Reschedule</Button>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #4caf50" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Grocery Shopping Assistance</Typography>
+                        <Typography variant="body2" color="text.secondary">Help Margaret with weekly groceries</Typography>
+                        <Chip label="Wed, 3:00 PM" size="small" sx={{ mt: 1, bgcolor: "#e8f5e9", color: "#4caf50" }} />
+                      </Box>
+                      <Chip label="Completed" color="success" size="small" />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+
+        {/* Tasks Section */}
+        {activeMenu === "Tasks" && (
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Assigned Tasks</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #f44336" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Medication Reminder</Typography>
+                      <Chip label="High Priority" size="small" sx={{ bgcolor: "#ffebee", color: "#f44336" }} />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Remind Margaret to take her evening medication</Typography>
+                    <Typography variant="caption" sx={{ color: "#999" }}>Due: Today, 8:00 PM</Typography>
+                    <Box sx={{ mt: 2 }}>
+                      <Button variant="contained" size="small" fullWidth onClick={() => setSnackbar({ open: true, message: "Task marked as complete!", severity: "success" })} sx={{ borderRadius: 2 }}>Mark Complete</Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #ff9800" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Doctor Appointment</Typography>
+                      <Chip label="Medium" size="small" sx={{ bgcolor: "#fff3e0", color: "#ff9800" }} />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Accompany Robert to his doctor appointment</Typography>
+                    <Typography variant="caption" sx={{ color: "#999" }}>Due: Tomorrow, 10:00 AM</Typography>
+                    <Box sx={{ mt: 2 }}>
+                      <Button variant="contained" size="small" fullWidth onClick={() => setSnackbar({ open: true, message: "Task marked as complete!", severity: "success" })} sx={{ borderRadius: 2 }}>Mark Complete</Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ borderRadius: 3, boxShadow: 2, borderLeft: "4px solid #4caf50", bgcolor: "#f1f8e9" }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, textDecoration: "line-through", color: "#666" }}>Weekly Check-in Call</Typography>
+                      <Chip label="Completed" size="small" color="success" />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Called Margaret for weekly wellness check</Typography>
+                    <Typography variant="caption" sx={{ color: "#999" }}>Completed: Yesterday</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
         )}
 
         {/* Help Requests Section */}

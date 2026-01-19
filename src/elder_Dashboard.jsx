@@ -72,6 +72,13 @@ export default function Home() {
   });
   const [editProfile, setEditProfile] = useState({ name: user.name, email: user.email, phone: "" });
 
+  // Message Reply Dialog State
+  const [messageReplyDialog, setMessageReplyDialog] = useState({ open: false, contact: null });
+  const [replyText, setReplyText] = useState("");
+
+  // Incoming Call Dialog State
+  const [incomingCallDialog, setIncomingCallDialog] = useState({ open: false, caller: null });
+
   // Voice Assistant States
   const [isListening, setIsListening] = useState(false);
   const [voiceText, setVoiceText] = useState("");
@@ -340,6 +347,25 @@ export default function Home() {
 
   const [newMed, setNewMed] = useState({ name: "", dose: "", frequency: "", times: "", note: "" });
   const [newTask, setNewTask] = useState({ title: "", description: "", priority: "medium" });
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Search handler
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
+      // Navigate to relevant section based on search
+      if (lowerQuery.includes("medicine") || lowerQuery.includes("med") || lowerQuery.includes("pill")) {
+        setActiveNav("medicines");
+      } else if (lowerQuery.includes("task") || lowerQuery.includes("appointment")) {
+        setActiveNav("tasks");
+      } else if (lowerQuery.includes("message") || lowerQuery.includes("chat")) {
+        setActiveNav("messages");
+      } else if (lowerQuery.includes("profile") || lowerQuery.includes("setting")) {
+        setActiveNav("profile");
+      }
+    }
+  };
 
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -650,39 +676,61 @@ export default function Home() {
       {/* Messages List */}
       <Card sx={{ borderRadius: 3, mb: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
         <CardContent sx={{ p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, "&:hover": { backgroundColor: "#f5f5f5" } }}>
-            <Avatar sx={{ bgcolor: "#1976d2" }}>J</Avatar>
+          <Box 
+            sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, bgcolor: "#e3f2fd", "&:hover": { backgroundColor: "#bbdefb" } }}
+            onClick={() => setMessageReplyDialog({ open: true, contact: { name: "John (Son)", avatar: "J", color: "#1976d2", message: "How are you feeling today, Mom?" }})}
+          >
+            <Badge badgeContent={1} color="primary">
+              <Avatar sx={{ bgcolor: "#1976d2" }}>J</Avatar>
+            </Badge>
             <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontWeight: 600 }}>John (Son)</Typography>
+              <Typography sx={{ fontWeight: 700 }}>John (Son)</Typography>
               <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>How are you feeling today, Mom?</Typography>
             </Box>
-            <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>10:30 AM</Typography>
+            <Box sx={{ textAlign: "right" }}>
+              <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>10:30 AM</Typography>
+              <Button size="small" sx={{ mt: 0.5 }}>Reply</Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>
 
       <Card sx={{ borderRadius: 3, mb: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
         <CardContent sx={{ p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, "&:hover": { backgroundColor: "#f5f5f5" } }}>
-            <Avatar sx={{ bgcolor: "#4caf50" }}>S</Avatar>
+          <Box 
+            sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, bgcolor: "#e8f5e9", "&:hover": { backgroundColor: "#c8e6c9" } }}
+            onClick={() => setMessageReplyDialog({ open: true, contact: { name: "Sarah (Caregiver)", avatar: "S", color: "#4caf50", message: "I'll visit you at 2 PM today." }})}
+          >
+            <Badge badgeContent={1} color="success">
+              <Avatar sx={{ bgcolor: "#4caf50" }}>S</Avatar>
+            </Badge>
             <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontWeight: 600 }}>Sarah (Caregiver)</Typography>
+              <Typography sx={{ fontWeight: 700 }}>Sarah (Caregiver)</Typography>
               <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>I'll visit you at 2 PM today.</Typography>
             </Box>
-            <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>9:15 AM</Typography>
+            <Box sx={{ textAlign: "right" }}>
+              <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>9:15 AM</Typography>
+              <Button size="small" sx={{ mt: 0.5 }}>Reply</Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>
 
       <Card sx={{ borderRadius: 3, mb: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
         <CardContent sx={{ p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, "&:hover": { backgroundColor: "#f5f5f5" } }}>
+          <Box 
+            sx={{ display: "flex", alignItems: "center", gap: 2, p: 1, cursor: "pointer", borderRadius: 2, "&:hover": { backgroundColor: "#f5f5f5" } }}
+            onClick={() => setMessageReplyDialog({ open: true, contact: { name: "Dr. Smith", avatar: "D", color: "#9c27b0", message: "Your test results look good!" }})}
+          >
             <Avatar sx={{ bgcolor: "#9c27b0" }}>D</Avatar>
             <Box sx={{ flex: 1 }}>
               <Typography sx={{ fontWeight: 600 }}>Dr. Smith</Typography>
               <Typography sx={{ color: "#666", fontSize: "0.85rem" }}>Your test results look good!</Typography>
             </Box>
-            <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>Yesterday</Typography>
+            <Box sx={{ textAlign: "right" }}>
+              <Typography sx={{ color: "#999", fontSize: "0.75rem" }}>Yesterday</Typography>
+              <Button size="small" sx={{ mt: 0.5 }}>Reply</Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>
@@ -792,9 +840,12 @@ export default function Home() {
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "white", borderBottom: "1px solid #e0e0e0" }}>
           <TextField
             size="small"
-            placeholder="Search..."
+            placeholder="Search medicines, tasks, messages..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => { if (e.key === 'Enter') handleSearch(searchQuery); }}
             sx={{ width: 300, "& .MuiOutlinedInput-root": { borderRadius: 3, backgroundColor: "#f5f5f5" } }}
-            InputProps={{ startAdornment: <InputAdornment position="start"><Search sx={{ color: "#9e9e9e" }} /></InputAdornment> }}
+            InputProps={{ startAdornment: <InputAdornment position="start"><Search sx={{ color: "#9e9e9e", cursor: "pointer" }} onClick={() => handleSearch(searchQuery)} /></InputAdornment> }}
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Typography sx={{ color: "#666", fontSize: "0.9rem" }}>{shortDate}</Typography>
@@ -1135,6 +1186,103 @@ export default function Home() {
           <Button onClick={() => setSettingsDialog(false)}>Close</Button>
           <Button variant="contained" onClick={() => { setSettingsDialog(false); setSnackbar({ open: true, message: "Settings saved!", severity: "success" }); }}>Save</Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Message Reply Dialog */}
+      <Dialog open={messageReplyDialog.open} onClose={() => { setMessageReplyDialog({ open: false, contact: null }); setReplyText(""); }} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            Reply to Message
+            <IconButton onClick={() => { setMessageReplyDialog({ open: false, contact: null }); setReplyText(""); }}><Close /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {messageReplyDialog.contact && (
+            <Box sx={{ py: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Avatar sx={{ bgcolor: messageReplyDialog.contact.color }}>{messageReplyDialog.contact.avatar}</Avatar>
+                <Typography variant="h6">{messageReplyDialog.contact.name}</Typography>
+              </Box>
+              <Box sx={{ bgcolor: "#f5f5f5", p: 2, borderRadius: 2, mb: 2 }}>
+                <Typography variant="body2" color="text.secondary">Original message:</Typography>
+                <Typography>{messageReplyDialog.contact.message}</Typography>
+              </Box>
+              <TextField 
+                fullWidth 
+                multiline 
+                rows={3} 
+                placeholder="Type your reply..." 
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+              />
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+                <Typography variant="body2" sx={{ width: "100%", color: "#666", mb: 1 }}>Quick replies:</Typography>
+                {["I'm doing well!", "Thank you!", "See you soon!", "Call me please"].map((msg) => (
+                  <Chip 
+                    key={msg} 
+                    label={msg} 
+                    size="small"
+                    onClick={() => setReplyText(msg)} 
+                    sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#e3f2fd" } }} 
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setMessageReplyDialog({ open: false, contact: null }); setReplyText(""); }}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            disabled={!replyText.trim()}
+            onClick={() => {
+              setSnackbar({ open: true, message: `Reply sent to ${messageReplyDialog.contact?.name}!`, severity: "success" });
+              setMessageReplyDialog({ open: false, contact: null });
+              setReplyText("");
+            }}
+          >
+            Send Reply
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Incoming Call Dialog */}
+      <Dialog open={incomingCallDialog.open} onClose={() => setIncomingCallDialog({ open: false, caller: null })} maxWidth="xs" fullWidth>
+        <DialogContent sx={{ textAlign: "center", py: 4 }}>
+          {incomingCallDialog.caller && (
+            <>
+              <Avatar sx={{ width: 80, height: 80, bgcolor: "#4caf50", mx: "auto", mb: 2, fontSize: "2rem" }}>
+                {incomingCallDialog.caller.avatar}
+              </Avatar>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>{incomingCallDialog.caller.name}</Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>Incoming call...</Typography>
+              <Box sx={{ display: "flex", justifyContent: "center", gap: 3 }}>
+                <Button 
+                  variant="contained" 
+                  color="error" 
+                  sx={{ borderRadius: "50%", minWidth: 60, height: 60 }}
+                  onClick={() => {
+                    setIncomingCallDialog({ open: false, caller: null });
+                    setSnackbar({ open: true, message: "Call declined", severity: "info" });
+                  }}
+                >
+                  <Phone sx={{ transform: "rotate(135deg)" }} />
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="success" 
+                  sx={{ borderRadius: "50%", minWidth: 60, height: 60 }}
+                  onClick={() => {
+                    setSnackbar({ open: true, message: `Call connected with ${incomingCallDialog.caller.name}!`, severity: "success" });
+                    setIncomingCallDialog({ open: false, caller: null });
+                  }}
+                >
+                  <Phone />
+                </Button>
+              </Box>
+            </>
+          )}
+        </DialogContent>
       </Dialog>
 
       {/* Snackbar */}
