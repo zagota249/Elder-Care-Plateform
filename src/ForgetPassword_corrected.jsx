@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, Typography, TextField, Button, Alert, Card, CircularProgress } from "@mui/material";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = process.env.NODE_ENV === 'production' ? '/api/auth' : 'http://localhost:5000/api/auth';
 
 export default function ForgetPassword() {
   const navigate = useNavigate();
